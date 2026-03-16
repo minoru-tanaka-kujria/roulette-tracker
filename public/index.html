@@ -270,6 +270,9 @@
 <!-- HISTORY STRIP -->
 <div class="hist" id="histStrip"><span class="emp">↓ 出目を入力</span></div>
 
+<!-- 直前入力バッジ -->
+<div id="lastInputBadge" style="display:none;align-items:center;gap:8px;padding:4px 12px;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.04);flex-shrink:0;min-height:42px"></div>
+
 <!-- FILTER BAR -->
 <div class="filter-bar" id="filterBar">
   <span class="filter-label">直近:</span>
@@ -347,18 +350,15 @@ const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 const COL1 = [1,4,7,10,13,16,19,22,25,28,31,34];
 const COL2 = [2,5,8,11,14,17,20,23,26,29,32,35];
 const COL3 = [3,6,9,12,15,18,21,24,27,30,33,36];
-// アメリカンルーレット ホイール順序 (0起点で時計回り)
-const WHEEL_ORDER = [0,-1,2,14,35,23,4,16,33,21,6,18,31,19,8,12,29,25,10,27,00,28,9,26,30,11,7,20,32,17,5,22,34,15,3,24,36,13,1];
-// ホイール上の8分割セクター
+// アメリカンルーレット ホイール順序 (0起点で時計回り) ※00=-1
+const WHEEL_ORDER = [0,28,9,26,30,11,7,20,32,17,5,22,34,15,3,24,36,13,1,-1,27,10,25,29,12,8,19,31,18,6,21,33,16,4,23,35,14,2];
+// ホイール上の5分割セクター（正確なホイール位置ベース）
 const WHEEL_SECTORS = [
-  { name: 'セクター1 (0近辺)', nums: [0,-1,2,14,35,23], color: '#16a34a' },
-  { name: 'セクター2 (4〜16)', nums: [4,16,33,21,6], color: '#ef4444' },
-  { name: 'セクター3 (18〜31)', nums: [18,31,19,8,12], color: '#3b82f6' },
-  { name: 'セクター4 (29〜10)', nums: [29,25,10,27], color: '#8b5cf6' },
-  { name: 'セクター5 (28〜26)', nums: [28,9,26,30,11], color: '#f59e0b' },
-  { name: 'セクター6 (7〜32)', nums: [7,20,32,17,5], color: '#ec4899' },
-  { name: 'セクター7 (22〜15)', nums: [22,34,15,3,24], color: '#14b8a6' },
-  { name: 'セクター8 (36〜1)', nums: [36,13,1], color: '#f97316' },
+  { name: '0/00 近辺', nums: [0,-1,1,2,13,14,27,28], color: '#16a34a' },
+  { name: '右上 (3〜17)', nums: [3,5,9,15,17,22,24,26,30], color: '#ef4444' },
+  { name: '右下 (6〜20)', nums: [6,7,8,11,18,19,20,21,32], color: '#3b82f6' },
+  { name: '左上 (4〜25)', nums: [4,10,12,16,23,25,29,31,33], color: '#8b5cf6' },
+  { name: '左下 (34〜36)', nums: [34,35,36], color: '#f59e0b' },
 ];
 
 const disp = n => n === -1 ? '00' : String(n);
@@ -627,12 +627,13 @@ function devColor(count, total, expected) {
   return diff > 0 ? '#f59e0b' : '#60a5fa';
 }
 
-// ===== ストリーク計算 =====
-function calcStreaks() {
+// ===== ストリーク計算 (dataがなければ全履歴を使用) =====
+function calcStreaks(data) {
+  const src = data || history;
   let rStr = 0, bStr = 0, oStr = 0, eStr = 0, lStr = 0, hStr = 0;
   let maxR = 0, maxB = 0, maxO = 0, maxE = 0, maxL = 0, maxH = 0;
 
-  for (const n of history) {
+  for (const n of src) {
     const lbl = getClrLabel(n);
     if (lbl === '赤') { rStr++; bStr = 0; } else if (lbl === '黒') { bStr++; rStr = 0; } else { rStr = 0; bStr = 0; }
     maxR = Math.max(maxR, rStr); maxB = Math.max(maxB, bStr);
@@ -646,8 +647,8 @@ function calcStreaks() {
 
   // 現在のストリーク
   let curStr = 0, curType = null;
-  if (history.length > 0) {
-    const last = history[history.length - 1];
+  if (src.length > 0) {
+    const last = src[src.length - 1];
     const lbl = getClrLabel(last);
     if (lbl) { curStr = lbl === '赤' ? rStr : bStr; curType = lbl; }
     else if (last > 0) {
@@ -715,6 +716,24 @@ function renderHist() {
     return `<div class="${cls}">${disp(n)}</div>`;
   }).join('');
   requestAnimationFrame(() => { el.scrollLeft = el.scrollWidth; });
+
+  // 直前入力インジケーター更新
+  const last = history[history.length - 1];
+  const clr = getClr(last);
+  const bg = clr === 'r' ? '#dc2626' : clr === 'b' ? '#2a2a44' : '#16a34a';
+  const colorLabel = clr === 'r' ? '赤' : clr === 'b' ? '黒' : '緑';
+  const inEl = document.getElementById('lastInputBadge');
+  if (inEl) {
+    const lohi = last > 0 ? (last <= 18 ? ' Lo' : ' Hi') : '';
+    const oe = last > 0 ? (last % 2 !== 0 ? ' 奇' : ' 偶') : '';
+    inEl.style.display = 'flex';
+    inEl.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:${bg};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;border:2px solid rgba(255,255,255,0.3);flex-shrink:0">${disp(last)}</div>
+      <div style="display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:12px;font-weight:700;color:#e0d8c8">${colorLabel}${lohi}${oe}</div>
+        <div style="font-size:10px;color:#555">#${history.length} スピン</div>
+      </div>
+      <div style="margin-left:auto;font-size:10px;color:#444;text-align:right">直前入力</div>`;
+  }
 }
 
 // ===== 統計ページ =====
@@ -929,6 +948,37 @@ function renderStats() {
     </div>
   </div>`;
 
+  // 個別数字頻度TOP5
+  const numCounts = {};
+  for (const n of filtered) numCounts[n] = (numCounts[n] || 0) + 1;
+  const allNums = [0, -1, ...Array.from({length:36}, (_,i)=>i+1)];
+  const sortedByFreq = [...allNums].sort((a,b) => (numCounts[b]||0) - (numCounts[a]||0));
+  const top5 = sortedByFreq.slice(0, 5).filter(n => (numCounts[n]||0) > 0);
+  const bot5 = [...allNums].filter(n => (numCounts[n]||0) === 0).slice(0, 5);
+  if (top5.length > 0) {
+    const maxF = numCounts[top5[0]] || 1;
+    h += `<div class="cat">
+      <div class="cat-label">🏆 個別数字 頻度 TOP5</div>
+      <div style="display:flex;flex-direction:column;gap:4px">`;
+    top5.forEach((n, i) => {
+      const cnt = numCounts[n] || 0;
+      const clr = getClr(n);
+      const bg = clr === 'r' ? '#dc2626' : clr === 'b' ? '#404060' : '#16a34a';
+      const barW = Math.round(cnt / maxF * 100);
+      const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+      h += `<div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:13px;width:20px">${medals[i]}</span>
+        <div style="width:22px;height:22px;border-radius:50%;background:${bg};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;font-family:'DM Mono',monospace">${disp(n)}</div>
+        <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:3px;height:7px;overflow:hidden">
+          <div style="width:${barW}%;height:100%;background:${bg};border-radius:3px;opacity:0.8;transition:width .4s ease"></div>
+        </div>
+        <div style="font-size:11px;font-family:'DM Mono',monospace;color:#aaa;width:28px;text-align:right">${cnt}回</div>
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:#555;width:32px;text-align:right">${pct(cnt,total)}%</div>
+      </div>`;
+    });
+    h += `</div></div>`;
+  }
+
   // 統計コピーボタン
   h += `<div style="text-align:center;padding:4px 0">
     <button onclick="copyStatsSummary()" style="background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.2);border-radius:8px;padding:6px 20px;color:var(--gdim);font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif">📋 統計をコピー</button>
@@ -1121,17 +1171,20 @@ window._addNum = function(n) {
 // ===== 分析ページ =====
 function renderAnalysis() {
   const el = document.getElementById('pageAnalysis');
-  const total = history.length;
-  if (!total) {
+  if (!history.length) {
     el.innerHTML = '<div class="empty-state">出目を入力すると分析が表示されます</div>';
     return;
   }
-  const nz = history.filter(n => n > 0);
+  // フィルター対応: getFiltered()を使用
+  const filtered = getFiltered();
+  const total = filtered.length;
+  const totalAll = history.length; // セッション情報は全データで
+  const nz = filtered.filter(n => n > 0);
   const nzt = nz.length || 1;
-  const reds = history.filter(n => REDS.includes(n)).length;
-  const blacks = history.filter(n => n > 0 && !REDS.includes(n)).length;
-  const zero0 = history.filter(n => n === 0).length;
-  const zero00 = history.filter(n => n === -1).length;
+  const reds = filtered.filter(n => REDS.includes(n)).length;
+  const blacks = filtered.filter(n => n > 0 && !REDS.includes(n)).length;
+  const zero0 = filtered.filter(n => n === 0).length;
+  const zero00 = filtered.filter(n => n === -1).length;
   const odds = nz.filter(n => n % 2 !== 0).length;
   const evens = nz.filter(n => n % 2 === 0).length;
   const lows = nz.filter(n => n <= 18).length;
@@ -1139,15 +1192,16 @@ function renderAnalysis() {
   const d1 = nz.filter(n => n <= 12).length, d2 = nz.filter(n => n > 12 && n <= 24).length, d3 = nz.filter(n => n > 24).length;
   const c1 = nz.filter(n => COL1.includes(n)).length, c2 = nz.filter(n => COL2.includes(n)).length, c3 = nz.filter(n => COL3.includes(n)).length;
 
-  // セッション時間
+  // セッション時間 (全データ基準で計算)
   let timeStr = '—', speedStr = '—';
   if (sessionStart) {
     const sec = Math.floor((Date.now() - sessionStart) / 1000);
     const m = String(Math.floor(sec / 60)).padStart(2, '0');
     const s = String(sec % 60).padStart(2, '0');
     timeStr = `${m}:${s}`;
-    if (total >= 2 && sec > 0) {
-      const spm = (total / (sec / 60)).toFixed(1);
+    // ペース = 全スピン数 / 経過分
+    if (totalAll >= 2 && sec > 0) {
+      const spm = (totalAll / (sec / 60)).toFixed(1);
       speedStr = `${spm}/分`;
     }
   }
@@ -1171,13 +1225,26 @@ function renderAnalysis() {
 
   let h = '';
 
+  // フィルター表示
+  let filterBadge = '';
+  if (filterN > 0 || europeanMode) {
+    const tags = [];
+    if (filterN > 0) tags.push(`直近${filterN}件`);
+    if (europeanMode) tags.push('🇪🇺 EU');
+    filterBadge = `<div style="display:flex;gap:4px;margin-bottom:6px">
+      ${tags.map(t=>`<span style="background:rgba(212,168,83,0.12);border:1px solid rgba(212,168,83,0.25);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--gold)">${t}</span>`).join('')}
+      <span style="font-size:10px;color:#555;margin-left:auto">${total}件集計</span>
+    </div>`;
+  }
+
   // セッション情報
   h += `<div class="cat">
     <div class="cat-label">⏱ セッション情報</div>
+    ${filterBadge}
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
       <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center">
-        <div style="font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:var(--gold)">${total}</div>
-        <div style="font-size:10px;color:#555">総スピン</div>
+        <div style="font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:var(--gold)">${totalAll}<span style="font-size:12px;color:#555">/${total}</span></div>
+        <div style="font-size:10px;color:#555">総/対象スピン</div>
       </div>
       <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center">
         <div style="font-size:15px;font-weight:700;font-family:'DM Mono',monospace;color:#60a5fa" id="analysisTime">${timeStr}</div>
@@ -1212,9 +1279,9 @@ function renderAnalysis() {
   });
   h += `</div>`;
 
-  // 直近トレンドバーチャート
+  // 直近トレンドバーチャート (フィルター後データを使用)
   if (total >= 5) {
-    const last20 = history.slice(-20);
+    const last20 = filtered.slice(-20);
     const l20t = last20.length;
     const l20r = last20.filter(n => REDS.includes(n)).length;
     const l20b = last20.filter(n => n > 0 && !REDS.includes(n)).length;
@@ -1236,9 +1303,9 @@ function renderAnalysis() {
     </div>`;
   }
 
-  // 長帯びストリーク詳細
+  // 長帯びストリーク詳細 (フィルター後データで計算)
   if (total >= 10) {
-    const { maxR, maxB, maxO, maxE, maxL, maxH } = calcStreaks();
+    const { maxR, maxB, maxO, maxE, maxL, maxH } = calcStreaks(filtered);
     const streakItems = [
       { label: '赤連続', val: maxR, color: '#ef4444', bg: 'rgba(220,38,38,0.07)' },
       { label: '黒連続', val: maxB, color: '#9ca3af', bg: 'rgba(80,80,130,0.1)' },
@@ -1268,7 +1335,7 @@ function renderAnalysis() {
   if (total >= 5) {
     const sectorCounts = WHEEL_SECTORS.map(s => ({
       ...s,
-      count: history.filter(n => s.nums.includes(n)).length,
+      count: filtered.filter(n => s.nums.includes(n)).length,
     }));
     const maxSector = Math.max(...sectorCounts.map(s => s.count), 1);
     h += `<div class="cat">
@@ -1293,12 +1360,12 @@ function renderAnalysis() {
     h += `</div></div>`;
   }
 
-  // 連続パターン検出
+  // 連続パターン検出 (フィルター後データ)
   if (total >= 15) {
     // 赤黒の交互パターンを検出
     let altCount = 0, prevClr = null;
     let maxAltRun = 0, curAltRun = 0;
-    history.forEach(n => {
+    filtered.forEach(n => {
       const clr = getClrLabel(n);
       if (!clr) { curAltRun = 0; prevClr = null; return; }
       if (prevClr && clr !== prevClr) { curAltRun++; maxAltRun = Math.max(maxAltRun, curAltRun); }
@@ -1306,7 +1373,7 @@ function renderAnalysis() {
       prevClr = clr;
       altCount++;
     });
-    // ゼロ出現サイクル
+    // ゼロ出現サイクル (全履歴で計算 - より意味がある)
     const zeroIdxs = [];
     history.forEach((n, i) => { if (n === 0 || n === -1) zeroIdxs.push(i); });
     const zeroCycles = [];
@@ -1382,6 +1449,45 @@ function renderHist2() {
     return;
   }
   const recent = [...history].reverse().slice(0, 100);
+
+  // 過去セッション比較セクション
+  let pastHtml = '';
+  try {
+    const sessions = JSON.parse(localStorage.getItem('rt5_sessions') || '[]');
+    if (sessions.length > 0) {
+      pastHtml = `<div class="cat">
+        <div class="cat-label">📂 過去セッション履歴 <span class="cat-sub">${sessions.length}件保存</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px">`;
+      sessions.forEach((s, i) => {
+        const d = new Date(s.resetAt);
+        const timeStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const sData = s.data;
+        const sReds = sData.filter(n => REDS.includes(n)).length;
+        const sBlacks = sData.filter(n => n > 0 && !REDS.includes(n)).length;
+        const s0 = sData.filter(n => n === 0 || n === -1).length;
+        const redPct = Math.round(sReds / sData.length * 100);
+        const blkPct = Math.round(sBlacks / sData.length * 100);
+        pastHtml += `<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px 10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:11px;color:#888">${timeStr} リセット</span>
+            <span style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--gold)">${sData.length} spins</span>
+          </div>
+          <div style="display:flex;gap:6px;font-size:10px;font-family:'DM Mono',monospace">
+            <span style="color:#ef4444">赤${sReds}(${redPct}%)</span>
+            <span style="color:#9ca3af">黒${sBlacks}(${blkPct}%)</span>
+            <span style="color:#22c55e">0/00: ${s0}</span>
+          </div>
+          <div style="display:flex;height:6px;border-radius:3px;overflow:hidden;margin-top:5px;gap:1px">
+            <div style="width:${redPct}%;background:#dc2626"></div>
+            <div style="width:${blkPct}%;background:#404060"></div>
+            <div style="flex:1;background:#16a34a"></div>
+          </div>
+          <button onclick="restoreSession(${i})" style="margin-top:6px;padding:3px 10px;border-radius:5px;border:1px solid rgba(212,168,83,0.2);background:rgba(212,168,83,0.05);color:var(--gdim);font-size:10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif">このセッションに戻す</button>
+        </div>`;
+      });
+      pastHtml += `</div></div>`;
+    }
+  } catch(e) {}
   let h = `<div class="cat">
     <div class="cat-label">📋 スピン履歴 <span class="cat-sub">最新${Math.min(history.length,100)}件</span></div>
     <table class="hist-table">
@@ -1408,7 +1514,22 @@ function renderHist2() {
   h += `</tbody></table>`;
   if (history.length > 100) h += `<div style="text-align:center;font-size:10px;color:#444;padding:6px">… 残り ${history.length - 100} 件 (エクスポートで全件確認)</div>`;
   h += `</div>`;
+  h += pastHtml;
   el.innerHTML = h;
+}
+
+function restoreSession(idx) {
+  try {
+    const sessions = JSON.parse(localStorage.getItem('rt5_sessions') || '[]');
+    const s = sessions[idx];
+    if (!s) return;
+    if (!confirm(`${s.data.length}件のセッションデータを復元しますか？\n現在のデータは上書きされます。`)) return;
+    history = [...s.data];
+    sessionStart = s.start;
+    save();
+    render();
+    showToast(`${s.data.length}件のセッションを復元しました`);
+  } catch(e) { showToast('復元に失敗しました'); }
 }
 
 // ===== ベット追跡ページ =====
