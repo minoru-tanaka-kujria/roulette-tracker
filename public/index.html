@@ -176,6 +176,56 @@
 
   /* EMPTY */
   .empty-state{flex:1;display:flex;align-items:center;justify-content:center;color:#444;font-size:14px;text-align:center;padding:20px;line-height:2.2;min-height:120px}
+
+  /* FILTER BAR */
+  .filter-bar{display:flex;gap:4px;padding:4px 10px;flex-shrink:0;background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.04);align-items:center}
+  .filter-label{font-size:10px;color:#555;margin-right:2px;white-space:nowrap}
+  .filter-btn{padding:3px 9px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:none;color:#666;font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;transition:all .2s}
+  .filter-btn.active{background:rgba(212,168,83,0.18);border-color:rgba(212,168,83,0.4);color:var(--gold)}
+  .eu-toggle{margin-left:auto;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:none;color:#666;font-size:10px;cursor:pointer;white-space:nowrap;font-family:'Noto Sans JP',sans-serif;transition:all .2s}
+  .eu-toggle.on{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.4);color:#60a5fa}
+
+  /* DUE NUMBERS */
+  .ng-due{font-size:6px;font-family:'DM Mono',monospace;position:relative;z-index:1;line-height:1;margin-top:1px}
+  .ng-cell.never-seen{outline:2px dashed rgba(212,168,83,0.5);outline-offset:-2px}
+
+  /* HISTORY TABLE */
+  .hist-table{width:100%;border-collapse:collapse;font-size:11px;font-family:'DM Mono',monospace}
+  .hist-table th{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,0.1);color:var(--gdim);text-align:center;font-weight:600;font-size:10px}
+  .hist-table td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;color:#aaa}
+  .hist-table tr:last-child td{border-bottom:none}
+  .hist-table .ht-num{font-weight:700;font-size:14px}
+  .hist-ball{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;font-family:'DM Mono',monospace}
+
+  /* BET TRACKER */
+  .bet-row{display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap}
+  .bet-btn{padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);color:#888;font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s}
+  .bet-btn.selected{border-color:rgba(212,168,83,0.5);background:rgba(212,168,83,0.12);color:var(--gold);font-weight:700}
+  .bet-stat-row{display:flex;gap:6px}
+  .bet-stat{flex:1;border-radius:6px;padding:6px;text-align:center;background:rgba(255,255,255,0.03)}
+  .bet-stat-val{font-size:22px;font-weight:800;font-family:'DM Mono',monospace}
+  .bet-stat-lbl{font-size:10px;color:#555}
+
+  /* INSTALL PROMPT */
+  .install-banner{display:none;margin:4px 10px;padding:8px 12px;border-radius:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);align-items:center;gap:8px;flex-shrink:0}
+  .install-banner.show{display:flex}
+  .install-banner-text{flex:1;font-size:12px;color:#93c5fd;line-height:1.4}
+  .install-btn-small{padding:5px 12px;border-radius:6px;background:rgba(59,130,246,0.25);border:1px solid rgba(59,130,246,0.4);color:#60a5fa;font-size:12px;cursor:pointer;white-space:nowrap;font-family:'Noto Sans JP',sans-serif}
+
+  /* VIBRATION VISUAL FEEDBACK */
+  @keyframes tap-flash{0%{opacity:1}50%{opacity:0.5;transform:scale(.92)}100%{opacity:1;transform:scale(1)}}
+  .ng-cell:active{animation:tap-flash .15s ease-out}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+  /* KEYBOARD SHORTCUT HELP */
+  .help-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+  .help-overlay.show{display:flex}
+  .help-box{background:#181828;border:1px solid rgba(212,168,83,0.3);border-radius:12px;padding:16px;width:100%;max-width:380px}
+  .help-title{font-size:15px;font-weight:700;color:var(--gold);margin-bottom:12px}
+  .help-row{display:flex;gap:10px;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .help-row:last-child{border-bottom:none}
+  .help-key{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:2px 8px;font-family:'DM Mono',monospace;font-size:12px;color:#ccc;white-space:nowrap}
+  .help-desc{font-size:12px;color:#888}
 </style>
 </head>
 <body>
@@ -197,9 +247,14 @@
     </div>
   </div>
   <div class="hdr-right">
+    <div id="hdrStreak" style="display:none;margin-right:4px;font-size:10px;font-family:'DM Mono',monospace;text-align:center;line-height:1.2">
+      <div id="hdrStreakVal" style="font-size:16px;font-weight:800;line-height:1"></div>
+      <div id="hdrStreakLbl" style="color:#666;font-size:9px"></div>
+    </div>
     <button class="hdr-btn act" id="btnExport">↑保存</button>
     <button class="hdr-btn" id="btnUndo" disabled>↩戻す</button>
     <button class="hdr-btn danger" id="btnReset" disabled>リセット</button>
+    <button class="hdr-btn" id="btnHelp" title="ヘルプ">?</button>
   </div>
 </div>
 
@@ -208,16 +263,36 @@
   <div class="tab active" data-page="Stats">📊 統計</div>
   <div class="tab" data-page="Grid">🔢 グリッド</div>
   <div class="tab" data-page="Analysis">📈 分析</div>
+  <div class="tab" data-page="Hist">📋 履歴</div>
+  <div class="tab" data-page="Bet">💰 ベット</div>
 </div>
 
-<!-- HISTORY -->
+<!-- HISTORY STRIP -->
 <div class="hist" id="histStrip"><span class="emp">↓ 出目を入力</span></div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar" id="filterBar">
+  <span class="filter-label">直近:</span>
+  <button class="filter-btn" data-n="10">10</button>
+  <button class="filter-btn" data-n="20">20</button>
+  <button class="filter-btn" data-n="50">50</button>
+  <button class="filter-btn active" data-n="0">全</button>
+  <button class="eu-toggle" id="euToggle">EU切替</button>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="install-banner" id="installBanner">
+  <div class="install-banner-text">📱 ホーム画面に追加するとオフラインでも使えます</div>
+  <button class="install-btn-small" id="btnInstall">インストール</button>
+</div>
 
 <!-- MAIN CONTENT -->
 <div class="mid">
   <div class="page active" id="pageStats"></div>
   <div class="page" id="pageGrid"></div>
   <div class="page" id="pageAnalysis"></div>
+  <div class="page" id="pageHist"></div>
+  <div class="page" id="pageBet"></div>
 </div>
 
 <!-- QUICK INPUT -->
@@ -250,12 +325,41 @@
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<!-- KEYBOARD SHORTCUT HELP -->
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-box">
+    <div class="help-title">⌨️ キーボードショートカット</div>
+    <div class="help-row"><span class="help-key">0〜9, Enter</span><span class="help-desc">数字入力・決定</span></div>
+    <div class="help-row"><span class="help-key">Backspace</span><span class="help-desc">最後の1件を削除 (戻す)</span></div>
+    <div class="help-row"><span class="help-key">?</span><span class="help-desc">このヘルプを表示/閉じる</span></div>
+    <div class="help-row"><span class="help-key">Tab</span><span class="help-desc">次のタブへ切替</span></div>
+    <div class="help-row"><span class="help-key">Q</span><span class="help-desc">クイック入力の表示/非表示</span></div>
+    <div class="help-row"><span class="help-key">Esc</span><span class="help-desc">ヘルプ・モーダルを閉じる</span></div>
+    <div style="margin-top:12px;text-align:center">
+      <button class="modal-btn close-btn" onclick="document.getElementById('helpOverlay').classList.remove('show')" style="display:inline-block;padding:6px 20px">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ===== データ定義 =====
 const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 const COL1 = [1,4,7,10,13,16,19,22,25,28,31,34];
 const COL2 = [2,5,8,11,14,17,20,23,26,29,32,35];
 const COL3 = [3,6,9,12,15,18,21,24,27,30,33,36];
+// アメリカンルーレット ホイール順序 (0起点で時計回り)
+const WHEEL_ORDER = [0,-1,2,14,35,23,4,16,33,21,6,18,31,19,8,12,29,25,10,27,00,28,9,26,30,11,7,20,32,17,5,22,34,15,3,24,36,13,1];
+// ホイール上の8分割セクター
+const WHEEL_SECTORS = [
+  { name: 'セクター1 (0近辺)', nums: [0,-1,2,14,35,23], color: '#16a34a' },
+  { name: 'セクター2 (4〜16)', nums: [4,16,33,21,6], color: '#ef4444' },
+  { name: 'セクター3 (18〜31)', nums: [18,31,19,8,12], color: '#3b82f6' },
+  { name: 'セクター4 (29〜10)', nums: [29,25,10,27], color: '#8b5cf6' },
+  { name: 'セクター5 (28〜26)', nums: [28,9,26,30,11], color: '#f59e0b' },
+  { name: 'セクター6 (7〜32)', nums: [7,20,32,17,5], color: '#ec4899' },
+  { name: 'セクター7 (22〜15)', nums: [22,34,15,3,24], color: '#14b8a6' },
+  { name: 'セクター8 (36〜1)', nums: [36,13,1], color: '#f97316' },
+];
 
 const disp = n => n === -1 ? '00' : String(n);
 const getClr = n => (n === 0 || n === -1) ? 'g' : REDS.includes(n) ? 'r' : 'b';
@@ -264,9 +368,26 @@ const getClrLabel = n => (n === 0 || n === -1) ? null : REDS.includes(n) ? '赤'
 let history = [];
 let sessionStart = null;
 
+// フィルター・モード設定
+let filterN = 0;          // 0=全, 10/20/50=直近N件
+let europeanMode = false;  // true=ヨーロピアン(00なし)
+
+// ベット追跡
+let betType = null;        // 'red','black','odd','even','low','high'
+let betWins = 0, betLosses = 0, betPushes = 0;
+
 // ローカルストレージから復元
 try { const d = localStorage.getItem('rt5'); if (d) history = JSON.parse(d); } catch(e) {}
 try { const t = localStorage.getItem('rt5_start'); if (t && history.length) sessionStart = parseInt(t); } catch(e) {}
+try { const b = localStorage.getItem('rt5_bet'); if (b) { const bd = JSON.parse(b); betType = bd.t || null; betWins = bd.w || 0; betLosses = bd.l || 0; betPushes = bd.p || 0; } } catch(e) {}
+
+// フィルター適用後の履歴を返す
+function getFiltered() {
+  let h = history;
+  if (europeanMode) h = h.filter(n => n !== -1); // 00を除外
+  if (filterN > 0) h = h.slice(-filterN);
+  return h;
+}
 
 function save() {
   try { localStorage.setItem('rt5', JSON.stringify(history)); } catch(e) {}
@@ -300,12 +421,32 @@ function submitInput() {
   if (raw === '') return;
   if (raw === '00') { addNum(-1); $input.value = ''; $input.focus(); return; }
   const n = parseInt(raw, 10);
-  if (!isNaN(n) && n >= 0 && n <= 36) { addNum(n); $input.value = ''; }
+  if (!isNaN(n) && n >= 0 && n <= 36) {
+    addNum(n); $input.value = '';
+    $input.style.borderColor = '';
+  } else {
+    // 入力エラーを視覚的に表示
+    $input.style.borderColor = '#dc2626';
+    $input.style.animation = 'none';
+    requestAnimationFrame(() => {
+      $input.style.animation = 'shake .3s ease';
+    });
+    showToast('⚠️ 0, 00, または 1〜36 を入力してください');
+    setTimeout(() => { $input.style.borderColor = ''; }, 1000);
+  }
   $input.focus();
 }
 
 function addNum(n) {
   if (!sessionStart) { sessionStart = Date.now(); save(); }
+  // ベット追跡
+  if (betType) {
+    const res = getBetResult(n, betType);
+    if (res === 'win') betWins++;
+    else if (res === 'loss') betLosses++;
+    else betPushes++;
+    saveBet();
+  }
   history.push(n);
   save();
   render();
@@ -316,11 +457,19 @@ document.getElementById('btnUndo').onclick = () => {
   if (history.length) { history.pop(); save(); render(); }
 };
 document.getElementById('btnReset').onclick = () => {
-  if (confirm('全データをリセットしますか？')) {
-    history = []; sessionStart = null;
-    localStorage.removeItem('rt5'); localStorage.removeItem('rt5_start');
-    render();
+  if (!confirm('全データをリセットしますか？\n（直前のセッションは復元できます）')) return;
+  // 現在のセッションを保存
+  if (history.length > 0) {
+    try {
+      const sessions = JSON.parse(localStorage.getItem('rt5_sessions') || '[]');
+      sessions.unshift({ data: [...history], start: sessionStart, resetAt: Date.now() });
+      localStorage.setItem('rt5_sessions', JSON.stringify(sessions.slice(0, 5))); // 最大5セッション保存
+    } catch(e) {}
   }
+  history = []; sessionStart = null;
+  localStorage.removeItem('rt5'); localStorage.removeItem('rt5_start');
+  render();
+  showToast('リセット完了（「↑保存」→インポートで復元可能）');
 };
 
 // ===== クイック入力ボタン構築 =====
@@ -347,6 +496,24 @@ document.getElementById('btnQuick').onclick = function() {
   w.style.display = open ? 'none' : 'block';
   this.textContent = open ? '⚡ クイック入力を表示' : '✕ クイック入力を閉じる';
   this.classList.toggle('open', !open);
+};
+
+// ===== フィルターバー =====
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.onclick = function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    filterN = parseInt(this.dataset.n);
+    render();
+  };
+});
+
+document.getElementById('euToggle').onclick = function() {
+  europeanMode = !europeanMode;
+  this.classList.toggle('on', europeanMode);
+  this.textContent = europeanMode ? '🇪🇺 EU中' : 'EU切替';
+  showToast(europeanMode ? 'ヨーロピアンモード (00を除外)' : 'アメリカンモードに戻す');
+  render();
 };
 
 // ===== タブ切替 =====
@@ -410,11 +577,40 @@ function openModal(mode) {
   document.getElementById('modalOverlay').classList.remove('hidden');
   document.getElementById('modalTitle').textContent = 'データ書き出し';
   const txt = history.map(n => n === -1 ? '00' : String(n)).join(',');
-  document.getElementById('modalTextarea').value = txt || '(データなし)';
+  // 過去セッション情報を付加
+  let extraInfo = '';
+  try {
+    const sessions = JSON.parse(localStorage.getItem('rt5_sessions') || '[]');
+    if (sessions.length > 0) {
+      const latest = sessions[0];
+      const d = new Date(latest.resetAt);
+      const timeStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      extraInfo = `\n\n# 直前のセッション (${timeStr} リセット, ${latest.data.length}件):\n` +
+        latest.data.map(n => n === -1 ? '00' : String(n)).join(',');
+    }
+  } catch(e) {}
+  document.getElementById('modalTextarea').value = (txt || '(データなし)') + extraInfo;
   document.getElementById('modalTextarea').readOnly = true;
   document.getElementById('modalAction').textContent = 'コピー';
   document.getElementById('btnSwitchMode').textContent = 'インポートに切替';
 }
+
+// ===== ヘッダーストリーク更新 =====
+function updateHeaderStreak() {
+  const { curStr, curType } = calcStreaks();
+  const el = document.getElementById('hdrStreak');
+  if (!curStr || !curType) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  const color = curType === '赤' ? '#ef4444' : curType === '黒' ? '#9ca3af' : curType === '奇' ? '#8b5cf6' : curType === '偶' ? '#0ea5e9' : '#f59e0b';
+  document.getElementById('hdrStreakVal').style.color = color;
+  document.getElementById('hdrStreakVal').textContent = curStr;
+  document.getElementById('hdrStreakLbl').textContent = curType + '連続';
+}
+
+// ヘルプボタン
+document.getElementById('btnHelp').onclick = () => {
+  document.getElementById('helpOverlay').classList.toggle('show');
+};
 
 // ===== ヘルパー =====
 function pct(count, total) { return total > 0 ? Math.round(count / total * 100) : 0; }
@@ -501,10 +697,13 @@ function render() {
   document.getElementById('spinCount').textContent = total;
   document.getElementById('btnUndo').disabled = !total;
   document.getElementById('btnReset').disabled = !total;
+  updateHeaderStreak();
   renderHist();
   renderStats();
   renderGrid();
   renderAnalysis();
+  renderHist2();
+  renderBet();
 }
 
 // ===== ヒストリーバー =====
@@ -521,17 +720,20 @@ function renderHist() {
 // ===== 統計ページ =====
 function renderStats() {
   const el = document.getElementById('pageStats');
-  const total = history.length;
-  if (!total) {
+  const totalAll = history.length;
+  if (!totalAll) {
     el.innerHTML = '<div class="empty-state">↓ 出目を入力してください<br><span style="font-size:11px;color:#333">0 / 00 / 1〜36</span></div>';
     return;
   }
-  const nz = history.filter(n => n > 0);
+  const filtered = getFiltered();
+  const total = filtered.length;
+  const filterLabel = filterN > 0 ? `直近${filterN}件` : '全データ';
+  const nz = filtered.filter(n => n > 0);
   const nzt = nz.length || 1;
-  const reds = history.filter(n => REDS.includes(n)).length;
-  const blacks = history.filter(n => n > 0 && !REDS.includes(n)).length;
-  const zero0 = history.filter(n => n === 0).length;
-  const zero00 = history.filter(n => n === -1).length;
+  const reds = filtered.filter(n => REDS.includes(n)).length;
+  const blacks = filtered.filter(n => n > 0 && !REDS.includes(n)).length;
+  const zero0 = filtered.filter(n => n === 0).length;
+  const zero00 = filtered.filter(n => n === -1).length;
   const odds = nz.filter(n => n % 2 !== 0).length;
   const evens = nz.filter(n => n % 2 === 0).length;
   const lows = nz.filter(n => n <= 18).length;
@@ -541,6 +743,17 @@ function renderStats() {
   const { curStr, curType, maxR, maxB, maxO } = calcStreaks();
 
   let h = '';
+
+  // フィルター情報 & コピーボタン
+  if (filterN > 0 || europeanMode) {
+    const tags = [];
+    if (filterN > 0) tags.push(`直近${filterN}件`);
+    if (europeanMode) tags.push('🇪🇺 EU');
+    h += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;margin-bottom:-2px">
+      ${tags.map(t => `<span style="background:rgba(212,168,83,0.12);border:1px solid rgba(212,168,83,0.25);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--gold)">${t}</span>`).join('')}
+      <span style="font-size:10px;color:#555;margin-left:auto">${total}スピン集計</span>
+    </div>`;
+  }
 
   // レコメンド
   const sugs = getRecs();
@@ -635,15 +848,18 @@ function renderStats() {
   </div>`;
 
   // ハイロー
-  h += `<div class="cat">
-    <div class="cat-label">ロー(1-18) / ハイ(19-36)</div>
+  const loHiBias = lows > highs + Math.max(nzt*0.1,2) ? 'hi' : highs > lows + Math.max(nzt*0.1,2) ? 'lo' : null;
+  h += `<div class="cat" style="${loHiBias ? 'border-color:rgba(212,168,83,0.25)' : ''}">
+    <div class="cat-label">ロー(1-18) / ハイ(19-36)
+      ${loHiBias ? `<span style="font-size:10px;color:#f59e0b;font-weight:400">← ${loHiBias === 'hi' ? 'Lo過多→Hi推奨?' : 'Hi過多→Lo推奨?'}</span>` : ''}
+    </div>
     <div class="split2">
-      <div class="s2-item" style="background:rgba(245,158,11,0.1)">
+      <div class="s2-item" style="background:rgba(245,158,11,${loHiBias === 'hi' ? '0.18' : '0.08'});${loHiBias === 'hi' ? 'border:1px solid rgba(245,158,11,0.3);border-radius:6px' : ''}">
         <div class="s2-top"><span class="s2-label" style="color:#f59e0b">Lo 1-18</span><span class="s2-pct" style="color:#f59e0b">${pct(lows,nzt)}%</span></div>
         <div class="s2-count" style="color:#f59e0b">${lows}</div>
         <div class="s2-dev" style="color:${devColor(lows,nzt,50)}">${dev(lows,nzt,50)}</div>
       </div>
-      <div class="s2-item" style="background:rgba(16,185,129,0.1)">
+      <div class="s2-item" style="background:rgba(16,185,129,${loHiBias === 'lo' ? '0.18' : '0.08'});${loHiBias === 'lo' ? 'border:1px solid rgba(16,185,129,0.3);border-radius:6px' : ''}">
         <div class="s2-top"><span class="s2-label" style="color:#10b981">Hi 19-36</span><span class="s2-pct" style="color:#10b981">${pct(highs,nzt)}%</span></div>
         <div class="s2-count" style="color:#10b981">${highs}</div>
         <div class="s2-dev" style="color:${devColor(highs,nzt,50)}">${dev(highs,nzt,50)}</div>
@@ -652,6 +868,10 @@ function renderStats() {
     <div class="s2-bar" style="margin-top:5px">
       <div class="bar-seg" style="width:${pct(lows,nzt)}%;background:#f59e0b"></div>
       <div class="bar-seg" style="flex:1;background:#10b981"></div>
+    </div>
+    <div style="display:flex;gap:4px;margin-top:6px">
+      <button onclick="setBet('low');showToast('Lo にベット設定')" style="flex:1;padding:4px;border-radius:5px;border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.06);color:#f59e0b;font-size:10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif">💰 Lo にベット</button>
+      <button onclick="setBet('high');showToast('Hi にベット設定')" style="flex:1;padding:4px;border-radius:5px;border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.06);color:#10b981;font-size:10px;cursor:pointer;font-family:'Noto Sans JP',sans-serif">💰 Hi にベット</button>
     </div>
   </div>`;
 
@@ -709,27 +929,77 @@ function renderStats() {
     </div>
   </div>`;
 
+  // 統計コピーボタン
+  h += `<div style="text-align:center;padding:4px 0">
+    <button onclick="copyStatsSummary()" style="background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.2);border-radius:8px;padding:6px 20px;color:var(--gdim);font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif">📋 統計をコピー</button>
+  </div>`;
+
   el.innerHTML = h;
+}
+
+// ===== 統計サマリーコピー =====
+function copyStatsSummary() {
+  const filtered = getFiltered();
+  const total = filtered.length;
+  if (!total) { showToast('データがありません'); return; }
+  const nz = filtered.filter(n => n > 0);
+  const nzt = nz.length || 1;
+  const reds = filtered.filter(n => REDS.includes(n)).length;
+  const blacks = filtered.filter(n => n > 0 && !REDS.includes(n)).length;
+  const zero0 = filtered.filter(n => n === 0).length;
+  const zero00 = filtered.filter(n => n === -1).length;
+  const odds = nz.filter(n => n % 2 !== 0).length;
+  const evens = nz.filter(n => n % 2 === 0).length;
+  const lows = nz.filter(n => n <= 18).length;
+  const highs = nz.filter(n => n > 18).length;
+  const { maxR, maxB } = calcStreaks();
+  const label = filterN > 0 ? `直近${filterN}件` : `全${total}スピン`;
+  const txt = [
+    `🎰 ルーレット統計 [${label}]`,
+    `赤: ${reds}回 (${pct(reds,total)}%) / 黒: ${blacks}回 (${pct(blacks,total)}%) / 0: ${zero0}回 / 00: ${zero00}回`,
+    `奇: ${odds}回 (${pct(odds,nzt)}%) / 偶: ${evens}回 (${pct(evens,nzt)}%)`,
+    `Lo: ${lows}回 (${pct(lows,nzt)}%) / Hi: ${highs}回 (${pct(highs,nzt)}%)`,
+    `最長赤連続: ${maxR} / 最長黒連続: ${maxB}`,
+  ].join('\n');
+  navigator.clipboard.writeText(txt).then(() => showToast('統計をコピーしました')).catch(() => showToast('コピー失敗'));
 }
 
 // ===== グリッドページ =====
 function renderGrid() {
   const el = document.getElementById('pageGrid');
-  const total = history.length;
-  if (!total) {
+  const totalAll = history.length;
+  if (!totalAll) {
     el.innerHTML = '<div class="empty-state">出目を入力するとグリッドが表示されます</div>';
     return;
   }
 
-  // 各数字の出現回数
+  // フィルター後の履歴で集計
+  const filtered = getFiltered();
+  const total = filtered.length;
+
+  // 各数字の出現回数 (フィルター適用後)
   const counts = {};
-  for (const n of history) counts[n] = (counts[n] || 0) + 1;
+  for (const n of filtered) counts[n] = (counts[n] || 0) + 1;
   const maxCnt = Math.max(...Object.values(counts), 1);
+
+  // デューナンバー: 各数字が最後に出たのは何スピン前か (全履歴で計算)
+  const lastSeen = {};
+  history.forEach((n, i) => { lastSeen[n] = history.length - 1 - i; }); // 小さいほど最近
+  // 実際には最後に出たインデックスを記録
+  const lastSeenIdx = {};
+  history.forEach((n, i) => { lastSeenIdx[n] = i; });
+  const getDue = n => {
+    if (lastSeenIdx[n] === undefined) return history.length; // 一度も出ていない
+    return history.length - 1 - lastSeenIdx[n]; // 何スピン前か
+  };
 
   // ホット/コールド
   const allNums = [0, -1, ...Array.from({ length: 36 }, (_, i) => i + 1)];
   const sortedHot = [...allNums].sort((a, b) => (counts[b] || 0) - (counts[a] || 0));
   const sortedCold = [...allNums].sort((a, b) => (counts[a] || 0) - (counts[b] || 0));
+
+  // 未出数字数
+  const neverSeen = allNums.filter(n => !counts[n]);
 
   let h = '';
 
@@ -767,18 +1037,57 @@ function renderGrid() {
   });
   h += `</div></div></div></div>`;
 
+  // 未出数字ハイライト情報
+  if (neverSeen.length > 0) {
+    h += `<div class="cat" style="border-color:rgba(212,168,83,0.2)">
+      <div class="cat-label" style="color:#f59e0b">⚠️ 未出数字 <span class="cat-sub">${neverSeen.length}個</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+    neverSeen.forEach(n => {
+      const clr = getClr(n);
+      const bg = clr === 'r' ? 'rgba(220,38,38,0.2)' : clr === 'b' ? 'rgba(60,60,100,0.3)' : 'rgba(22,163,74,0.2)';
+      const textC = clr === 'r' ? '#ef4444' : clr === 'b' ? '#9ca3af' : '#22c55e';
+      h += `<span style="background:${bg};border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:${textC};border:1px dashed ${textC}">${disp(n)}</span>`;
+    });
+    h += `</div></div>`;
+  }
+
+  // デュートップ5（最も長く出ていない数字）
+  const dueList = allNums.map(n => ({n, due: getDue(n)})).sort((a, b) => b.due - a.due).slice(0, 5);
+  h += `<div class="cat">
+    <div class="cat-label">⏳ デューナンバー <span class="cat-sub">最も長く出ていない数字</span></div>
+    <div style="display:flex;flex-direction:column;gap:4px">`;
+  dueList.forEach(({n, due}) => {
+    const clr = getClr(n);
+    const bg = clr === 'r' ? '#dc2626' : clr === 'b' ? '#404060' : '#16a34a';
+    const barW = Math.min(due / Math.max(history.length, 1) * 100, 100);
+    const dueColor = due > 20 ? '#f59e0b' : due > 10 ? '#888' : '#555';
+    h += `<div style="display:flex;align-items:center;gap:6px">
+      <div style="width:24px;height:24px;border-radius:50%;background:${bg};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;font-family:'DM Mono',monospace">${disp(n)}</div>
+      <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:3px;height:7px;overflow:hidden">
+        <div style="width:${barW}%;height:100%;background:${dueColor};border-radius:3px;transition:width .4s ease"></div>
+      </div>
+      <div style="font-size:11px;font-family:'DM Mono',monospace;color:${dueColor};width:36px;text-align:right">${due === history.length ? '未出' : due + '前'}</div>
+    </div>`;
+  });
+  h += `</div></div>`;
+
   // 全数字グリッド
   h += `<div class="cat">
-    <div class="cat-label">🔢 全数字グリッド <span class="cat-sub">塗り=頻度</span></div>
+    <div class="cat-label">🔢 全数字グリッド <span class="cat-sub">塗り=頻度 / ★=未出</span></div>
     <div class="num-grid">`;
 
   [[0,'0','g-cell'], [-1,'00','g-cell']].forEach(([n, l, cls]) => {
     const cnt = counts[n] || 0;
     const fillH = maxCnt > 0 ? Math.round(cnt / maxCnt * 100) : 0;
-    h += `<div class="ng-cell ${cls}" onclick="window._addNum(${n})">
+    const due = getDue(n);
+    const neverClass = cnt === 0 ? ' never-seen' : '';
+    const dueStr = cnt === 0 ? '未出' : due + '前';
+    const dueClr = due > 15 ? '#f59e0b' : 'rgba(255,255,255,0.35)';
+    h += `<div class="ng-cell ${cls}${neverClass}" onclick="window._addNum(${n});if(navigator.vibrate)navigator.vibrate(30)">
       <div class="ng-fill" style="height:${fillH}%"></div>
       <div class="ng-num">${l}</div>
       <div class="ng-cnt">${cnt}</div>
+      <div class="ng-due" style="color:${dueClr}">${dueStr}</div>
     </div>`;
   });
 
@@ -786,19 +1095,28 @@ function renderGrid() {
     const cnt = counts[n] || 0;
     const fillH = maxCnt > 0 ? Math.round(cnt / maxCnt * 100) : 0;
     const cls = REDS.includes(n) ? 'r-cell' : 'b-cell';
-    h += `<div class="ng-cell ${cls}" onclick="window._addNum(${n})">
+    const due = getDue(n);
+    const neverClass = cnt === 0 ? ' never-seen' : '';
+    const dueStr = cnt === 0 ? '未出' : due + '前';
+    const dueClr = due > 15 ? '#f59e0b' : 'rgba(255,255,255,0.35)';
+    h += `<div class="ng-cell ${cls}${neverClass}" onclick="window._addNum(${n});if(navigator.vibrate)navigator.vibrate(30)">
       <div class="ng-fill" style="height:${fillH}%"></div>
       <div class="ng-num">${n}</div>
       <div class="ng-cnt">${cnt}</div>
+      <div class="ng-due" style="color:${dueClr}">${dueStr}</div>
     </div>`;
   }
   h += `</div>
-    <div style="font-size:10px;color:#444;margin-top:4px;text-align:center">タップして入力</div>
+    <div style="font-size:10px;color:#444;margin-top:4px;text-align:center">タップして入力 / ★点線=未出</div>
   </div>`;
 
   el.innerHTML = h;
 }
-window._addNum = function(n) { addNum(n); showToast(`${disp(n)} を入力`); };
+window._addNum = function(n) {
+  addNum(n);
+  showToast(`${disp(n)} を入力`);
+  if (navigator.vibrate) navigator.vibrate(30);
+};
 
 // ===== 分析ページ =====
 function renderAnalysis() {
@@ -918,11 +1236,408 @@ function renderAnalysis() {
     </div>`;
   }
 
+  // 長帯びストリーク詳細
+  if (total >= 10) {
+    const { maxR, maxB, maxO, maxE, maxL, maxH } = calcStreaks();
+    const streakItems = [
+      { label: '赤連続', val: maxR, color: '#ef4444', bg: 'rgba(220,38,38,0.07)' },
+      { label: '黒連続', val: maxB, color: '#9ca3af', bg: 'rgba(80,80,130,0.1)' },
+      { label: '奇連続', val: maxO, color: '#8b5cf6', bg: 'rgba(139,92,246,0.07)' },
+      { label: '偶連続', val: maxE, color: '#0ea5e9', bg: 'rgba(14,165,233,0.07)' },
+      { label: 'Lo連続', val: maxL, color: '#f59e0b', bg: 'rgba(245,158,11,0.07)' },
+      { label: 'Hi連続', val: maxH, color: '#10b981', bg: 'rgba(16,185,129,0.07)' },
+    ];
+    const maxStreak = Math.max(...streakItems.map(s => s.val), 1);
+    h += `<div class="cat">
+      <div class="cat-label">📈 最長ストリーク詳細</div>
+      <div style="display:flex;flex-direction:column;gap:5px">`;
+    streakItems.forEach(({ label, val, color, bg }) => {
+      const barW = Math.round(val / maxStreak * 100);
+      h += `<div style="display:flex;align-items:center;gap:6px">
+        <div style="width:52px;font-size:10px;color:${color};flex-shrink:0">${label}</div>
+        <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:3px;height:8px;overflow:hidden">
+          <div style="width:${barW}%;height:100%;background:${color};border-radius:3px;transition:width .4s ease;opacity:0.7"></div>
+        </div>
+        <div style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:${color};width:24px;text-align:right">${val}</div>
+      </div>`;
+    });
+    h += `</div></div>`;
+  }
+
+  // ホイールセクター分析
+  if (total >= 5) {
+    const sectorCounts = WHEEL_SECTORS.map(s => ({
+      ...s,
+      count: history.filter(n => s.nums.includes(n)).length,
+    }));
+    const maxSector = Math.max(...sectorCounts.map(s => s.count), 1);
+    h += `<div class="cat">
+      <div class="cat-label">🎡 ホイールセクター分析</div>
+      <div style="display:flex;flex-direction:column;gap:5px">`;
+    sectorCounts.forEach(({ name, count, color, nums }) => {
+      const expected = nums.length / 38 * total;
+      const barW = Math.round(count / maxSector * 100);
+      const devPct = expected > 0 ? ((count - expected) / expected * 100) : 0;
+      const devColor = Math.abs(devPct) < 15 ? '#555' : devPct > 0 ? '#f59e0b' : '#60a5fa';
+      const sign = devPct >= 0 ? '+' : '';
+      h += `<div style="display:flex;align-items:center;gap:6px">
+        <div style="width:3px;height:20px;background:${color};border-radius:2px;flex-shrink:0"></div>
+        <div style="font-size:9px;color:#888;width:72px;flex-shrink:0;line-height:1.2">${name}</div>
+        <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:3px;height:7px;overflow:hidden">
+          <div style="width:${barW}%;height:100%;background:${color};border-radius:3px;opacity:0.7;transition:width .4s ease"></div>
+        </div>
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:#aaa;width:20px;text-align:right">${count}</div>
+        <div style="font-size:9px;font-family:'DM Mono',monospace;color:${devColor};width:36px;text-align:right">${sign}${devPct.toFixed(0)}%</div>
+      </div>`;
+    });
+    h += `</div></div>`;
+  }
+
+  // 連続パターン検出
+  if (total >= 15) {
+    // 赤黒の交互パターンを検出
+    let altCount = 0, prevClr = null;
+    let maxAltRun = 0, curAltRun = 0;
+    history.forEach(n => {
+      const clr = getClrLabel(n);
+      if (!clr) { curAltRun = 0; prevClr = null; return; }
+      if (prevClr && clr !== prevClr) { curAltRun++; maxAltRun = Math.max(maxAltRun, curAltRun); }
+      else { curAltRun = 0; }
+      prevClr = clr;
+      altCount++;
+    });
+    // ゼロ出現サイクル
+    const zeroIdxs = [];
+    history.forEach((n, i) => { if (n === 0 || n === -1) zeroIdxs.push(i); });
+    const zeroCycles = [];
+    for (let i = 1; i < zeroIdxs.length; i++) zeroCycles.push(zeroIdxs[i] - zeroIdxs[i-1]);
+    const avgZeroCycle = zeroCycles.length > 0 ? Math.round(zeroCycles.reduce((a, b) => a + b, 0) / zeroCycles.length) : 0;
+    const sinceLastZero = zeroIdxs.length > 0 ? history.length - 1 - zeroIdxs[zeroIdxs.length - 1] : history.length;
+    h += `<div class="cat">
+      <div class="cat-label">🔍 パターン分析</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <span style="color:#888">最長交互(赤黒)</span>
+          <span style="color:#f59e0b;font-family:'DM Mono',monospace;font-weight:700">${maxAltRun}回</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <span style="color:#888">0/00 平均サイクル</span>
+          <span style="color:#22c55e;font-family:'DM Mono',monospace;font-weight:700">${avgZeroCycle > 0 ? avgZeroCycle + '回に1回' : '計算中'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <span style="color:#888">0/00 が出てから</span>
+          <span style="color:${sinceLastZero > 20 ? '#f59e0b' : '#888'};font-family:'DM Mono',monospace;font-weight:700">${sinceLastZero}スピン経過</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0">
+          <span style="color:#888">総スピン数</span>
+          <span style="color:var(--gold);font-family:'DM Mono',monospace;font-weight:700">${total}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // アメリカンルーレット配当・確率一覧
+  h += `<div class="cat">
+    <div class="cat-label">📐 アメリカンルーレット 配当率</div>
+    <div style="font-size:10px;color:#555;margin-bottom:6px">38マス (0, 00, 1〜36) / ハウスエッジ: 5.26%</div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <thead><tr>
+        <th style="text-align:left;padding:3px 4px;border-bottom:1px solid rgba(255,255,255,0.1);color:var(--gdim);font-size:10px">ベット種</th>
+        <th style="text-align:right;padding:3px 4px;border-bottom:1px solid rgba(255,255,255,0.1);color:var(--gdim);font-size:10px">配当</th>
+        <th style="text-align:right;padding:3px 4px;border-bottom:1px solid rgba(255,255,255,0.1);color:var(--gdim);font-size:10px">確率</th>
+        <th style="text-align:right;padding:3px 4px;border-bottom:1px solid rgba(255,255,255,0.1);color:var(--gdim);font-size:10px">期待値</th>
+      </tr></thead>
+      <tbody>
+        ${[
+          ['赤 / 黒', '1:1', '18/38 (47.4%)', '-5.26%'],
+          ['奇数 / 偶数', '1:1', '18/38 (47.4%)', '-5.26%'],
+          ['Lo / Hi', '1:1', '18/38 (47.4%)', '-5.26%'],
+          ['ダズン / カラム', '2:1', '12/38 (31.6%)', '-5.26%'],
+          ['シングルNo.', '35:1', '1/38 (2.6%)', '-5.26%'],
+          ['スプリット (2)', '17:1', '2/38 (5.3%)', '-5.26%'],
+          ['ストリート (3)', '11:1', '3/38 (7.9%)', '-5.26%'],
+          ['コーナー (4)', '8:1', '4/38 (10.5%)', '-5.26%'],
+          ['ファースト5 (5)', '6:1', '5/38 (13.2%)', '-7.89%'],
+          ['ライン (6)', '5:1', '6/38 (15.8%)', '-5.26%'],
+        ].map(([name, odds, prob, ev]) =>
+          `<tr>
+            <td style="padding:4px 4px;border-bottom:1px solid rgba(255,255,255,0.04);color:#aaa">${name}</td>
+            <td style="padding:4px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:right;font-family:'DM Mono',monospace;color:var(--gold);font-weight:700">${odds}</td>
+            <td style="padding:4px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:right;font-family:'DM Mono',monospace;color:#888">${prob}</td>
+            <td style="padding:4px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:right;font-family:'DM Mono',monospace;color:#ef4444">${ev}</td>
+          </tr>`
+        ).join('')}
+      </tbody>
+    </table>
+  </div>`;
+
   el.innerHTML = h;
+}
+
+// ===== 履歴テーブルページ =====
+function renderHist2() {
+  const el = document.getElementById('pageHist');
+  if (!history.length) {
+    el.innerHTML = '<div class="empty-state">出目を入力すると履歴が表示されます</div>';
+    return;
+  }
+  const recent = [...history].reverse().slice(0, 100);
+  let h = `<div class="cat">
+    <div class="cat-label">📋 スピン履歴 <span class="cat-sub">最新${Math.min(history.length,100)}件</span></div>
+    <table class="hist-table">
+      <thead><tr>
+        <th>#</th><th>数字</th><th>色</th><th>奇/偶</th><th>Lo/Hi</th>
+      </tr></thead>
+      <tbody>`;
+  recent.forEach((n, i) => {
+    const spin = history.length - i;
+    const clr = getClr(n);
+    const bg = clr === 'r' ? '#dc2626' : clr === 'b' ? '#404060' : '#16a34a';
+    const clrLabel = clr === 'r' ? '赤' : clr === 'b' ? '黒' : '—';
+    const oddeven = n > 0 ? (n % 2 !== 0 ? '奇' : '偶') : '—';
+    const lohi = n > 0 ? (n <= 18 ? 'Lo' : 'Hi') : '—';
+    const rowBg = i === 0 ? 'rgba(212,168,83,0.06)' : '';
+    h += `<tr style="background:${rowBg}">
+      <td style="color:#444;font-size:10px">${spin}</td>
+      <td><div class="hist-ball" style="background:${bg}">${disp(n)}</div></td>
+      <td style="color:${clr === 'r' ? '#ef4444' : clr === 'b' ? '#9ca3af' : '#22c55e'}">${clrLabel}</td>
+      <td style="color:${oddeven === '奇' ? '#8b5cf6' : '#0ea5e9'}">${oddeven}</td>
+      <td style="color:${lohi === 'Lo' ? '#f59e0b' : '#10b981'}">${lohi}</td>
+    </tr>`;
+  });
+  h += `</tbody></table>`;
+  if (history.length > 100) h += `<div style="text-align:center;font-size:10px;color:#444;padding:6px">… 残り ${history.length - 100} 件 (エクスポートで全件確認)</div>`;
+  h += `</div>`;
+  el.innerHTML = h;
+}
+
+// ===== ベット追跡ページ =====
+function renderBet() {
+  const el = document.getElementById('pageBet');
+  const betOptions = [
+    { key: 'red',   label: '🔴 赤', color: '#ef4444' },
+    { key: 'black', label: '⚫ 黒', color: '#9ca3af' },
+    { key: 'odd',   label: '奇数', color: '#8b5cf6' },
+    { key: 'even',  label: '偶数', color: '#0ea5e9' },
+    { key: 'low',   label: 'Lo 1-18', color: '#f59e0b' },
+    { key: 'high',  label: 'Hi 19-36', color: '#10b981' },
+  ];
+  const total = betWins + betLosses + betPushes;
+  const winRate = total > 0 ? (betWins / total * 100).toFixed(1) : '0.0';
+  const profit = betWins - betLosses;
+  const profitColor = profit > 0 ? '#10b981' : profit < 0 ? '#ef4444' : '#888';
+
+  let h = `<div class="cat">
+    <div class="cat-label">💰 仮想ベット追跡</div>
+    <div style="font-size:11px;color:#555;margin-bottom:8px">ベット対象を選択して出目を入力すると自動で勝敗を記録します</div>
+    <div class="bet-row">`;
+  betOptions.forEach(({key, label, color}) => {
+    const sel = betType === key;
+    h += `<button class="bet-btn${sel ? ' selected' : ''}" onclick="setBet('${key}')" style="${sel ? `border-color:${color};color:${color};` : ''}">${label}</button>`;
+  });
+  h += `</div>`;
+  if (betType) {
+    const found = betOptions.find(b => b.key === betType);
+    h += `<div style="font-size:11px;color:var(--gdim);margin-bottom:8px">現在: <strong style="color:var(--gold)">${found ? found.label : betType}</strong> にベット中</div>`;
+  }
+  h += `</div>`;
+
+  h += `<div class="cat">
+    <div class="cat-label">📊 結果</div>
+    <div class="bet-stat-row">
+      <div class="bet-stat">
+        <div class="bet-stat-val" style="color:#10b981">${betWins}</div>
+        <div class="bet-stat-lbl">勝利</div>
+      </div>
+      <div class="bet-stat">
+        <div class="bet-stat-val" style="color:#ef4444">${betLosses}</div>
+        <div class="bet-stat-lbl">敗北</div>
+      </div>
+      <div class="bet-stat">
+        <div class="bet-stat-val" style="color:#888">${betPushes}</div>
+        <div class="bet-stat-lbl">引分(0/00)</div>
+      </div>
+      <div class="bet-stat">
+        <div class="bet-stat-val" style="color:#60a5fa">${winRate}%</div>
+        <div class="bet-stat-lbl">勝率</div>
+      </div>
+    </div>
+    <div style="margin-top:10px;text-align:center">
+      <span style="font-size:20px;font-weight:800;font-family:'DM Mono',monospace;color:${profitColor}">${profit >= 0 ? '+' : ''}${profit}</span>
+      <span style="font-size:11px;color:#555;margin-left:4px">損益 (1ユニット計算)</span>
+    </div>
+    <div style="text-align:center;margin-top:8px">
+      <button onclick="resetBet()" style="padding:5px 16px;border-radius:6px;border:1px solid rgba(220,38,38,0.3);background:none;color:#dc2626;font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif">リセット</button>
+    </div>
+  </div>`;
+
+  // 最近の結果履歴（ベット済みスピンのみ）
+  if (history.length > 0 && betType) {
+    h += `<div class="cat">
+      <div class="cat-label">📋 直近の結果</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">`;
+    history.slice(-30).reverse().forEach(n => {
+      const res = getBetResult(n, betType);
+      const bg = res === 'win' ? 'rgba(16,185,129,0.2)' : res === 'loss' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)';
+      const border = res === 'win' ? '#10b981' : res === 'loss' ? '#ef4444' : '#444';
+      const clr = getClr(n);
+      const ballBg = clr === 'r' ? '#dc2626' : clr === 'b' ? '#404060' : '#16a34a';
+      h += `<div style="background:${bg};border:1px solid ${border};border-radius:6px;padding:3px 6px;display:flex;align-items:center;gap:3px">
+        <div style="width:16px;height:16px;border-radius:50%;background:${ballBg};font-size:8px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace">${disp(n)}</div>
+        <span style="font-size:9px;color:${border}">${res === 'win' ? '◎' : res === 'loss' ? '✕' : '△'}</span>
+      </div>`;
+    });
+    h += `</div></div>`;
+  }
+
+  // デューナンバーベースのサイクル分析
+  if (history.length >= 10) {
+    // 各ベット対象の最後の出現からのスピン数
+    const lastIdxMap = {};
+    history.forEach((n, i) => { lastIdxMap[n] = i; });
+    const sinceRed = history.length - 1 - Math.max(...REDS.map(n => lastIdxMap[n] ?? -1));
+    const sinceBlack = history.length - 1 - Math.max(...Array.from({length:36},(_, i)=>i+1).filter(n=>!REDS.includes(n)).map(n => lastIdxMap[n] ?? -1));
+    const nzIdxs = history.map((n,i)=>n>0?i:-1).filter(i=>i>=0);
+    const lastNzIdx = nzIdxs.length > 0 ? nzIdxs[nzIdxs.length-1] : -1;
+    const lastNzNum = lastNzIdx >= 0 ? history[lastNzIdx] : null;
+    const sinceOdd = lastNzNum !== null ? (lastNzNum % 2 !== 0 ? 0 : history.length - 1 - Math.max(...history.map((n,i)=>n>0&&n%2!==0?i:-1).filter(i=>i>=0))) : history.length;
+    const sinceEven = lastNzNum !== null ? (lastNzNum % 2 === 0 ? 0 : history.length - 1 - Math.max(...history.map((n,i)=>n>0&&n%2===0?i:-1).filter(i=>i>=0))) : history.length;
+    const sinceLo = history.length - 1 - Math.max(...history.map((n,i)=>n>0&&n<=18?i:-1).filter(i=>i>=0),-1);
+    const sinceHi = history.length - 1 - Math.max(...history.map((n,i)=>n>0&&n>18?i:-1).filter(i=>i>=0),-1);
+
+    const dueItems = [
+      { key:'red', label:'🔴 赤', due: sinceRed },
+      { key:'black', label:'⚫ 黒', due: sinceBlack },
+      { key:'odd', label:'奇数', due: sinceOdd },
+      { key:'even', label:'偶数', due: sinceEven },
+      { key:'low', label:'Lo', due: sinceLo },
+      { key:'high', label:'Hi', due: sinceHi },
+    ].sort((a,b) => b.due - a.due);
+
+    const maxDue = Math.max(...dueItems.map(d=>d.due), 1);
+    h += `<div class="cat">
+      <div class="cat-label">⏳ デューサイクル分析 <span class="cat-sub">最後に出てから何スピン経過</span></div>
+      <div style="display:flex;flex-direction:column;gap:5px">`;
+    dueItems.forEach(({key, label, due}) => {
+      const barW = Math.round(due / maxDue * 100);
+      const dueColor = due >= 5 ? '#f59e0b' : due >= 3 ? '#888' : '#555';
+      const isSel = betType === key;
+      h += `<div style="display:flex;align-items:center;gap:6px;cursor:pointer" onclick="setBet('${key}')">
+        <div style="font-size:11px;${isSel ? 'color:var(--gold);font-weight:700' : 'color:#888'};width:54px;flex-shrink:0">${label}${isSel ? '✓' : ''}</div>
+        <div style="flex:1;background:rgba(255,255,255,0.05);border-radius:3px;height:7px;overflow:hidden">
+          <div style="width:${barW}%;height:100%;background:${dueColor};border-radius:3px;transition:width .4s ease"></div>
+        </div>
+        <div style="font-size:11px;font-family:'DM Mono',monospace;color:${dueColor};width:40px;text-align:right">${due}スピン</div>
+      </div>`;
+    });
+    h += `</div>
+      <div style="font-size:10px;color:#444;margin-top:6px">※ タップでそのカテゴリにベット設定</div>
+    </div>`;
+  }
+
+  el.innerHTML = h;
+}
+
+function getBetResult(n, type) {
+  if (n === 0 || n === -1) return 'push'; // 0/00はプッシュ（ハウスウィン）
+  switch (type) {
+    case 'red':   return REDS.includes(n) ? 'win' : 'loss';
+    case 'black': return (!REDS.includes(n) && n > 0) ? 'win' : 'loss';
+    case 'odd':   return n % 2 !== 0 ? 'win' : 'loss';
+    case 'even':  return n % 2 === 0 ? 'win' : 'loss';
+    case 'low':   return n <= 18 ? 'win' : 'loss';
+    case 'high':  return n > 18 ? 'win' : 'loss';
+    default: return 'push';
+  }
+}
+
+function setBet(type) {
+  betType = type;
+  saveBet();
+  renderBet();
+  showToast(`${type} にベット設定`);
+}
+
+function resetBet() {
+  if (!confirm('ベット記録をリセットしますか？')) return;
+  betWins = 0; betLosses = 0; betPushes = 0;
+  saveBet(); renderBet();
+  showToast('ベット記録をリセット');
 }
 
 // ===== 初期化 =====
 render();
+
+// ===== PWAインストールプロンプト =====
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('installBanner').classList.add('show');
+});
+document.getElementById('btnInstall').onclick = () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(r => {
+    if (r.outcome === 'accepted') {
+      document.getElementById('installBanner').classList.remove('show');
+      showToast('インストール完了！');
+    }
+    deferredInstallPrompt = null;
+  });
+};
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+// ===== キーボードショートカット =====
+(function setupKeyboard() {
+  const tabs = ['Stats','Grid','Analysis','Hist','Bet'];
+  let currentTabIdx = 0;
+
+  document.addEventListener('keydown', e => {
+    const tag = e.target.tagName;
+    // 入力フィールド内は数字キーのみ通常処理
+    if (tag === 'INPUT' || tag === 'TEXTAREA') {
+      if (e.key === 'Enter') { submitInput(); return; }
+      return;
+    }
+    if (e.key === '?' || e.key === '/') {
+      e.preventDefault();
+      document.getElementById('helpOverlay').classList.toggle('show');
+      return;
+    }
+    if (e.key === 'Escape') {
+      document.getElementById('helpOverlay').classList.remove('show');
+      document.getElementById('modalOverlay').classList.add('hidden');
+      return;
+    }
+    if (e.key === 'Backspace' && history.length) {
+      e.preventDefault();
+      history.pop(); save(); render(); showToast('1件削除');
+      return;
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      currentTabIdx = (currentTabIdx + 1) % tabs.length;
+      document.querySelectorAll('.tab')[currentTabIdx].click();
+      return;
+    }
+    if (e.key === 'q' || e.key === 'Q') {
+      document.getElementById('btnQuick').click();
+      return;
+    }
+    // 数字キー
+    if (/^\d$/.test(e.key)) {
+      document.getElementById('numInput').focus();
+    }
+  });
+})();
+
+// ===== ベット保存 =====
+function saveBet() {
+  try { localStorage.setItem('rt5_bet', JSON.stringify({t:betType,w:betWins,l:betLosses,p:betPushes})); } catch(e) {}
+}
 
 // ===== PWA =====
 if ('serviceWorker' in navigator) {
