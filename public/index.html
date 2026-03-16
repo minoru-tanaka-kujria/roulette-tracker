@@ -379,7 +379,8 @@ let betWins = 0, betLosses = 0, betPushes = 0;
 // ローカルストレージから復元
 try { const d = localStorage.getItem('rt5'); if (d) history = JSON.parse(d); } catch(e) {}
 try { const t = localStorage.getItem('rt5_start'); if (t && history.length) sessionStart = parseInt(t); } catch(e) {}
-try { const b = localStorage.getItem('rt5_bet'); if (b) { const bd = JSON.parse(b); betType = bd.t || null; betWins = bd.w || 0; betLosses = bd.l || 0; betPushes = bd.p || 0; } } catch(e) {}
+try { const b = localStorage.getItem('rt5_bet'); if (b) { const bd = JSON.parse(b); betType = bd.t || null; betWins = parseInt(bd.w) || 0; betLosses = parseInt(bd.l) || 0; betPushes = parseInt(bd.p) || 0; } } catch(e) {}
+try { const f = localStorage.getItem('rt5_filter'); if (f) { const fd = JSON.parse(f); filterN = parseInt(fd.n) || 0; europeanMode = !!fd.eu; } } catch(e) {}
 
 // フィルター適用後の履歴を返す
 function getFiltered() {
@@ -392,6 +393,7 @@ function getFiltered() {
 function save() {
   try { localStorage.setItem('rt5', JSON.stringify(history)); } catch(e) {}
   if (sessionStart) try { localStorage.setItem('rt5_start', String(sessionStart)); } catch(e) {}
+  try { localStorage.setItem('rt5_filter', JSON.stringify({n: filterN, eu: europeanMode})); } catch(e) {}
 }
 
 // ===== タイマー =====
@@ -504,6 +506,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     this.classList.add('active');
     filterN = parseInt(this.dataset.n);
+    save();
     render();
   };
 });
@@ -513,8 +516,23 @@ document.getElementById('euToggle').onclick = function() {
   this.classList.toggle('on', europeanMode);
   this.textContent = europeanMode ? '🇪🇺 EU中' : 'EU切替';
   showToast(europeanMode ? 'ヨーロピアンモード (00を除外)' : 'アメリカンモードに戻す');
+  save();
   render();
 };
+
+// ===== フィルターUI復元 =====
+(function restoreFilterUI() {
+  // filterN のボタンを active にする
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.n) === filterN);
+  });
+  // europeanMode のボタン状態
+  const euBtn = document.getElementById('euToggle');
+  if (euBtn) {
+    euBtn.classList.toggle('on', europeanMode);
+    euBtn.textContent = europeanMode ? '🇪🇺 EU中' : 'EU切替';
+  }
+})();
 
 // ===== タブ切替 =====
 document.querySelectorAll('.tab').forEach(tab => {
@@ -597,7 +615,7 @@ function openModal(mode) {
 
 // ===== ヘッダーストリーク更新 =====
 function updateHeaderStreak() {
-  const { curStr, curType } = calcStreaks();
+  const { curStr, curType } = calcStreaks(getFiltered());
   const el = document.getElementById('hdrStreak');
   if (!curStr || !curType) { el.style.display = 'none'; return; }
   el.style.display = 'block';
@@ -1593,11 +1611,12 @@ function renderBet() {
   </div>`;
 
   // 最近の結果履歴（ベット済みスピンのみ）
-  if (history.length > 0 && betType) {
+  const filteredBet = getFiltered();
+  if (filteredBet.length > 0 && betType) {
     h += `<div class="cat">
       <div class="cat-label">📋 直近の結果</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px">`;
-    history.slice(-30).reverse().forEach(n => {
+    filteredBet.slice(-30).reverse().forEach(n => {
       const res = getBetResult(n, betType);
       const bg = res === 'win' ? 'rgba(16,185,129,0.2)' : res === 'loss' ? 'rgba(239,68,68,0.2)' : 'rgba(255,255,255,0.05)';
       const border = res === 'win' ? '#10b981' : res === 'loss' ? '#ef4444' : '#444';
@@ -1612,19 +1631,20 @@ function renderBet() {
   }
 
   // デューナンバーベースのサイクル分析
-  if (history.length >= 10) {
-    // 各ベット対象の最後の出現からのスピン数
+  if (filteredBet.length >= 10) {
+    // 各ベット対象の最後の出現からのスピン数（フィルター後の履歴で計算）
     const lastIdxMap = {};
-    history.forEach((n, i) => { lastIdxMap[n] = i; });
-    const sinceRed = history.length - 1 - Math.max(...REDS.map(n => lastIdxMap[n] ?? -1));
-    const sinceBlack = history.length - 1 - Math.max(...Array.from({length:36},(_, i)=>i+1).filter(n=>!REDS.includes(n)).map(n => lastIdxMap[n] ?? -1));
-    const nzIdxs = history.map((n,i)=>n>0?i:-1).filter(i=>i>=0);
+    filteredBet.forEach((n, i) => { lastIdxMap[n] = i; });
+    const fLen = filteredBet.length;
+    const sinceRed = fLen - 1 - Math.max(...REDS.map(n => lastIdxMap[n] ?? -1));
+    const sinceBlack = fLen - 1 - Math.max(...Array.from({length:36},(_, i)=>i+1).filter(n=>!REDS.includes(n)).map(n => lastIdxMap[n] ?? -1));
+    const nzIdxs = filteredBet.map((n,i)=>n>0?i:-1).filter(i=>i>=0);
     const lastNzIdx = nzIdxs.length > 0 ? nzIdxs[nzIdxs.length-1] : -1;
-    const lastNzNum = lastNzIdx >= 0 ? history[lastNzIdx] : null;
-    const sinceOdd = lastNzNum !== null ? (lastNzNum % 2 !== 0 ? 0 : history.length - 1 - Math.max(...history.map((n,i)=>n>0&&n%2!==0?i:-1).filter(i=>i>=0))) : history.length;
-    const sinceEven = lastNzNum !== null ? (lastNzNum % 2 === 0 ? 0 : history.length - 1 - Math.max(...history.map((n,i)=>n>0&&n%2===0?i:-1).filter(i=>i>=0))) : history.length;
-    const sinceLo = history.length - 1 - Math.max(...history.map((n,i)=>n>0&&n<=18?i:-1).filter(i=>i>=0),-1);
-    const sinceHi = history.length - 1 - Math.max(...history.map((n,i)=>n>0&&n>18?i:-1).filter(i=>i>=0),-1);
+    const lastNzNum = lastNzIdx >= 0 ? filteredBet[lastNzIdx] : null;
+    const sinceOdd = lastNzNum !== null ? (lastNzNum % 2 !== 0 ? 0 : fLen - 1 - Math.max(...filteredBet.map((n,i)=>n>0&&n%2!==0?i:-1).filter(i=>i>=0))) : fLen;
+    const sinceEven = lastNzNum !== null ? (lastNzNum % 2 === 0 ? 0 : fLen - 1 - Math.max(...filteredBet.map((n,i)=>n>0&&n%2===0?i:-1).filter(i=>i>=0))) : fLen;
+    const sinceLo = fLen - 1 - Math.max(...filteredBet.map((n,i)=>n>0&&n<=18?i:-1).filter(i=>i>=0),-1);
+    const sinceHi = fLen - 1 - Math.max(...filteredBet.map((n,i)=>n>0&&n>18?i:-1).filter(i=>i>=0),-1);
 
     const dueItems = [
       { key:'red', label:'🔴 赤', due: sinceRed },
