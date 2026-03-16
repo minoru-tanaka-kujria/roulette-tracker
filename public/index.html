@@ -12,200 +12,579 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;700&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  :root{--gold:#d4a853;--gdim:#886b30;--bg:#0b0b14;--sf:#13131f;--red:#dc2626;--blk:#1e1e32;--grn:#16a34a;--sab:env(safe-area-inset-bottom,0px)}
+  :root{
+    --gold:#d4a853;--gdim:#886b30;--bg:#0b0b14;--sf:#13131f;
+    --red:#dc2626;--blk:#1e1e32;--grn:#16a34a;--sab:env(safe-area-inset-bottom,0px);
+    --hot:#ff6b35;--cold:#60a5fa;
+  }
   html,body{height:100%;height:100dvh;overflow:hidden;background:var(--bg)}
   body{font-family:'Noto Sans JP',sans-serif;color:#e0d8c8;display:flex;flex-direction:column;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden}
 
   /* HEADER */
-  .hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:linear-gradient(180deg,rgba(212,168,83,0.06),transparent);border-bottom:1px solid rgba(212,168,83,0.1);flex-shrink:0}
-  .hdr-left{display:flex;align-items:center;gap:10px}
-  .hdr-title{font-size:16px;font-weight:700;color:var(--gold);letter-spacing:2px}
-  .hdr-count{font-size:22px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace}
-  .hdr-count span{font-size:11px;color:var(--gdim);font-weight:400}
-  .hdr-right{display:flex;align-items:center;gap:6px}
-  .hdr-btn{background:none;border:1px solid rgba(212,168,83,0.25);color:var(--gdim);border-radius:5px;padding:6px 12px;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
-  .hdr-btn:disabled{opacity:.25}.hdr-btn.danger{border-color:rgba(220,38,38,0.3);color:#dc2626}
+  .hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:linear-gradient(180deg,rgba(212,168,83,0.08),transparent);border-bottom:1px solid rgba(212,168,83,0.12);flex-shrink:0}
+  .hdr-left{display:flex;align-items:center;gap:8px}
+  .hdr-title{font-size:14px;font-weight:700;color:var(--gold);letter-spacing:2px}
+  .hdr-stats{display:flex;gap:10px;align-items:center}
+  .hdr-stat{display:flex;flex-direction:column;align-items:center}
+  .hdr-stat-val{font-size:18px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace;line-height:1}
+  .hdr-stat-lbl{font-size:9px;color:var(--gdim);letter-spacing:0.5px}
+  .hdr-sep{width:1px;height:28px;background:rgba(212,168,83,0.15)}
+  .hdr-timer{font-size:13px;font-family:'DM Mono',monospace}
+  .hdr-right{display:flex;align-items:center;gap:4px}
+  .hdr-btn{background:none;border:1px solid rgba(212,168,83,0.2);color:var(--gdim);border-radius:5px;padding:5px 8px;font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap}
+  .hdr-btn:disabled{opacity:.2}
+  .hdr-btn.danger{border-color:rgba(220,38,38,0.3);color:#dc2626}
+  .hdr-btn.act{border-color:rgba(212,168,83,0.4);color:var(--gold)}
+
+  /* TABS */
+  .tabs{display:flex;flex-shrink:0;background:rgba(0,0,0,0.3);border-bottom:1px solid rgba(255,255,255,0.05)}
+  .tab{flex:1;padding:7px 4px;text-align:center;font-size:11px;color:#555;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+  .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
 
   /* HISTORY */
-  .hist{display:flex;gap:3px;padding:6px 14px;overflow-x:auto;flex-shrink:0;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.03);scrollbar-width:none;min-height:34px;align-items:center}
+  .hist{display:flex;gap:3px;padding:5px 12px;overflow-x:auto;flex-shrink:0;background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.03);scrollbar-width:none;min-height:32px;align-items:center}
   .hist::-webkit-scrollbar{display:none}
-  .hist .emp{font-size:13px;color:#555}
-  .mc{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;border:1.5px solid rgba(212,168,83,0.4)}
-  .mc.r{background:var(--red)}.mc.b{background:var(--blk)}.mc.g{background:var(--grn)}
+  .hist .emp{font-size:12px;color:#555}
+  .mc{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;border:1.5px solid rgba(212,168,83,0.35)}
+  .mc.r{background:var(--red)}.mc.b{background:#2a2a44}.mc.g{background:var(--grn)}
+  .mc.new-entry{animation:pop .3s ease-out}
+  @keyframes pop{0%{transform:scale(0.5);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 
   /* MID AREA */
   .mid{flex:1;overflow-y:auto;padding:6px 10px;display:flex;flex-direction:column;gap:6px;min-height:0;scrollbar-width:none}
   .mid::-webkit-scrollbar{display:none}
 
+  /* PAGE */
+  .page{display:none;flex-direction:column;gap:6px}
+  .page.active{display:flex}
+
   /* Category card */
-  .cat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px}
-  .cat-label{font-size:15px;font-weight:700;color:var(--gold);margin-bottom:6px}
+  .cat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:8px 10px}
+  .cat-label{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+  .cat-sub{font-size:10px;color:var(--gdim);font-weight:400}
 
   /* 2-way split */
   .split2{display:flex;gap:5px}
   .split2 .s2-item{flex:1;border-radius:6px;padding:6px 10px}
   .s2-top{display:flex;align-items:baseline;justify-content:space-between}
-  .s2-label{font-size:15px;font-weight:700}
-  .s2-count{font-size:28px;font-weight:800;font-family:'DM Mono',monospace}
-  .s2-pct{font-size:18px;font-family:'DM Mono',monospace;font-weight:700}
-  .s2-bar{height:6px;border-radius:3px;margin-top:5px;overflow:hidden;display:flex}
+  .s2-label{font-size:14px;font-weight:700}
+  .s2-count{font-size:26px;font-weight:800;font-family:'DM Mono',monospace}
+  .s2-pct{font-size:16px;font-family:'DM Mono',monospace;font-weight:700}
+  .s2-dev{font-size:10px;margin-top:1px;font-family:'DM Mono',monospace}
+  .s2-bar{height:5px;border-radius:3px;margin-top:5px;overflow:hidden;display:flex}
+  .bar-seg{transition:width .4s ease}
 
-  /* 4-way split (red, black, 0, 00) */
-  .split4{display:flex;gap:4px}
-  .split4 .s4-item{flex:1;border-radius:6px;padding:6px 8px}
-  .s4-label{font-size:14px;font-weight:700}
-  .s4-count{font-size:26px;font-weight:800;font-family:'DM Mono',monospace}
-  .s4-pct{font-size:16px;font-family:'DM Mono',monospace;font-weight:700}
-  .s4-zero{max-width:25%}
+  /* 4-way split */
+  .split4{display:flex;gap:3px}
+  .split4 .s4-item{flex:1;border-radius:6px;padding:5px 7px}
+  .s4-label{font-size:13px;font-weight:700}
+  .s4-count{font-size:24px;font-weight:800;font-family:'DM Mono',monospace}
+  .s4-pct{font-size:14px;font-family:'DM Mono',monospace;font-weight:700}
+  .s4-zero{max-width:24%}
 
   /* 3-way split */
-  .split3{display:flex;gap:5px}
+  .split3{display:flex;gap:4px}
   .split3 .s3-item{flex:1;border-radius:6px;padding:6px 8px;text-align:center}
-  .s3-label{font-size:14px;font-weight:700}
-  .s3-count{font-size:26px;font-weight:800;font-family:'DM Mono',monospace}
-  .s3-pct{font-size:15px;font-family:'DM Mono',monospace;font-weight:600;opacity:.8}
-  .s3-nums{font-size:9px;color:rgba(255,255,255,0.35);margin-top:2px;line-height:1.3}
+  .s3-label{font-size:13px;font-weight:700}
+  .s3-count{font-size:24px;font-weight:800;font-family:'DM Mono',monospace}
+  .s3-pct{font-size:13px;font-family:'DM Mono',monospace;font-weight:600;opacity:.8}
+  .s3-dev{font-size:9px;font-family:'DM Mono',monospace;margin-top:2px}
+  .s3-nums{font-size:9px;color:rgba(255,255,255,0.3);margin-top:2px;line-height:1.3}
 
   /* Recommend */
-  .rec{background:rgba(212,168,83,0.08);border:1px solid rgba(212,168,83,0.2);border-radius:8px;padding:8px 10px}
-  .rec-title{font-size:14px;color:var(--gold);font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:4px}
-  .rec-tags{display:flex;gap:5px;flex-wrap:wrap}
-  .rec-tag{background:rgba(212,168,83,0.15);border-radius:5px;padding:3px 10px;font-weight:700;font-size:15px;color:var(--gold);white-space:nowrap}
-  .rec-hint{font-size:11px;color:var(--gdim);margin-top:4px}
+  .rec{background:rgba(212,168,83,0.07);border:1px solid rgba(212,168,83,0.18);border-radius:8px;padding:8px 10px}
+  .rec-title{font-size:13px;color:var(--gold);font-weight:700;margin-bottom:5px}
+  .rec-tags{display:flex;gap:4px;flex-wrap:wrap}
+  .rec-tag{background:rgba(212,168,83,0.14);border-radius:5px;padding:3px 9px;font-weight:700;font-size:13px;color:var(--gold);white-space:nowrap}
+  .rec-hint{font-size:10px;color:var(--gdim);margin-top:4px}
+
+  /* STREAK CARD */
+  .streak-row{display:flex;gap:4px}
+  .streak-item{flex:1;border-radius:6px;padding:6px 5px;text-align:center}
+  .streak-label{font-size:10px;color:rgba(255,255,255,0.45);margin-bottom:2px}
+  .streak-val{font-size:22px;font-weight:800;font-family:'DM Mono',monospace}
+  .streak-sub{font-size:9px;margin-top:1px}
+
+  /* HOT/COLD */
+  .hc-row{display:flex;gap:5px}
+  .hc-col{flex:1;border-radius:6px;padding:7px 8px}
+  .hc-title{font-size:11px;font-weight:700;margin-bottom:6px}
+  .hc-nums{display:flex;flex-direction:column;gap:4px}
+  .hc-item{display:flex;align-items:center;gap:5px}
+  .hc-ball{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;font-family:'DM Mono',monospace}
+  .hc-bar-wrap{flex:1;background:rgba(255,255,255,0.07);border-radius:3px;height:5px;overflow:hidden}
+  .hc-bar{height:100%;border-radius:3px;transition:width .4s ease}
+  .hc-cnt{font-size:10px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.6);width:20px;text-align:right}
+
+  /* GRID */
+  .num-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+  .ng-cell{aspect-ratio:1;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(255,255,255,0.08);position:relative;overflow:hidden;transition:opacity .2s}
+  .ng-cell:active{opacity:.7}
+  .ng-cell .ng-num{font-size:9px;font-weight:700;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.9);position:relative;z-index:1;line-height:1}
+  .ng-cell .ng-cnt{font-size:7px;font-family:'DM Mono',monospace;color:rgba(255,255,255,0.55);position:relative;z-index:1;margin-top:1px}
+  .ng-cell .ng-fill{position:absolute;bottom:0;left:0;right:0;transition:height .4s ease;opacity:0.4}
+  .ng-cell.r-cell{background:rgba(220,38,38,0.12);border-color:rgba(220,38,38,0.2)}
+  .ng-cell.r-cell .ng-fill{background:#dc2626}
+  .ng-cell.b-cell{background:rgba(30,30,50,0.5);border-color:rgba(255,255,255,0.08)}
+  .ng-cell.b-cell .ng-fill{background:#6060a0}
+  .ng-cell.g-cell{background:rgba(22,163,74,0.15);border-color:rgba(22,163,74,0.3)}
+  .ng-cell.g-cell .ng-fill{background:#16a34a}
+
+  /* DEVIATION */
+  .dev-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+  .dev-row:last-child{border-bottom:none}
+  .dev-label{font-size:11px;color:rgba(255,255,255,0.65);width:68px;flex-shrink:0}
+  .dev-bar-wrap{flex:1;background:rgba(255,255,255,0.06);border-radius:3px;height:7px;overflow:hidden;position:relative}
+  .dev-expected{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,0.25)}
+  .dev-actual{height:100%;border-radius:3px;transition:width .4s ease}
+  .dev-pct{font-size:10px;font-family:'DM Mono',monospace;width:36px;text-align:right;flex-shrink:0;color:#888}
+  .dev-diff{font-size:10px;font-family:'DM Mono',monospace;width:34px;flex-shrink:0;text-align:right}
+
+  /* QUICK INPUT */
+  .quick-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;padding:6px 10px;background:rgba(0,0,0,0.3);border-top:1px solid rgba(255,255,255,0.05)}
+  .quick-btn{padding:5px 0;border-radius:5px;border:1px solid rgba(255,255,255,0.1);font-size:11px;font-weight:700;font-family:'DM Mono',monospace;cursor:pointer;text-align:center;transition:transform .1s,opacity .2s;color:#fff}
+  .quick-btn:active{transform:scale(.88)}
+  .quick-btn.qr{background:rgba(220,38,38,0.3);border-color:rgba(220,38,38,0.4)}
+  .quick-btn.qb{background:rgba(40,40,70,0.6);border-color:rgba(100,100,150,0.25)}
+  .quick-btn.qg{background:rgba(22,163,74,0.25);border-color:rgba(22,163,74,0.4)}
+  .quick-toggle-bar{padding:3px 10px;background:rgba(0,0,0,0.25);border-top:1px solid rgba(255,255,255,0.04);flex-shrink:0}
+  .quick-toggle{width:100%;padding:5px 12px;background:none;border:none;color:#444;font-size:11px;cursor:pointer;text-align:left;font-family:'Noto Sans JP',sans-serif}
+  .quick-toggle.open{color:var(--gdim)}
 
   /* INPUT BAR */
-  .input-bar{flex-shrink:0;padding:8px 12px calc(8px + var(--sab));background:var(--sf);border-top:1px solid rgba(212,168,83,0.1);display:flex;align-items:center;gap:8px}
-  .input-bar input{flex:1;padding:10px 14px;border-radius:8px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(212,168,83,0.25);color:#e0d8c8;font-size:20px;font-family:'DM Mono',monospace;outline:none;text-align:center;caret-color:var(--gold)}
-  .input-bar input::placeholder{color:#555;font-size:15px}
+  .input-bar{flex-shrink:0;padding:7px 10px calc(7px + var(--sab));background:var(--sf);border-top:1px solid rgba(212,168,83,0.1);display:flex;align-items:center;gap:6px}
+  .input-bar input{flex:1;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(212,168,83,0.25);color:#e0d8c8;font-size:18px;font-family:'DM Mono',monospace;outline:none;text-align:center;caret-color:var(--gold)}
+  .input-bar input::placeholder{color:#444;font-size:13px}
   .input-bar input:focus{border-color:var(--gold);background:rgba(255,255,255,0.1)}
-  .input-bar .submit-btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(135deg,#d4a853,#b8912e);color:#0b0b14;font-weight:700;font-size:16px;font-family:'Noto Sans JP',sans-serif;white-space:nowrap}
-  .input-bar .submit-btn:active{transform:scale(.95)}
+  .submit-btn{padding:9px 16px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(135deg,#d4a853,#b8912e);color:#0b0b14;font-weight:700;font-size:15px;font-family:'Noto Sans JP',sans-serif;white-space:nowrap}
+  .submit-btn:active{transform:scale(.95)}
+
+  /* EXPORT/IMPORT MODAL */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.hidden{display:none}
+  .modal{background:#181828;border:1px solid rgba(212,168,83,0.3);border-radius:12px;padding:16px;width:100%;max-width:420px}
+  .modal-title{font-size:15px;font-weight:700;color:var(--gold);margin-bottom:10px}
+  .modal textarea{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#e0d8c8;font-family:'DM Mono',monospace;font-size:12px;padding:8px;resize:none;outline:none;height:90px}
+  .modal-btns{display:flex;gap:6px;margin-top:10px}
+  .modal-btn{flex:1;padding:8px;border-radius:6px;border:1px solid rgba(212,168,83,0.25);background:rgba(212,168,83,0.08);color:var(--gold);font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
+  .modal-btn.primary{background:linear-gradient(135deg,#d4a853,#b8912e);color:#0b0b14;border:none;font-weight:700}
+  .modal-btn.close-btn{background:none;color:#555;border-color:rgba(255,255,255,0.08)}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:calc(72px + var(--sab));left:50%;transform:translateX(-50%) translateY(16px);background:rgba(212,168,83,0.95);color:#0b0b14;padding:7px 18px;border-radius:20px;font-size:12px;font-weight:700;z-index:200;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* EMPTY */
+  .empty-state{flex:1;display:flex;align-items:center;justify-content:center;color:#444;font-size:14px;text-align:center;padding:20px;line-height:2.2;min-height:120px}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-left">
     <div class="hdr-title">ROULETTE</div>
-    <div class="hdr-count"><span>SPINS</span> <span id="spinCount">0</span></div>
+    <div class="hdr-stats">
+      <div class="hdr-stat">
+        <div class="hdr-stat-val" id="spinCount">0</div>
+        <div class="hdr-stat-lbl">SPINS</div>
+      </div>
+      <div class="hdr-sep"></div>
+      <div class="hdr-stat">
+        <div class="hdr-stat-val hdr-timer" id="timerDisp">00:00</div>
+        <div class="hdr-stat-lbl">TIME</div>
+      </div>
+    </div>
   </div>
   <div class="hdr-right">
-    <button class="hdr-btn" id="btnUndo" disabled>↩ 戻す</button>
+    <button class="hdr-btn act" id="btnExport">↑保存</button>
+    <button class="hdr-btn" id="btnUndo" disabled>↩戻す</button>
     <button class="hdr-btn danger" id="btnReset" disabled>リセット</button>
   </div>
 </div>
 
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" data-page="Stats">📊 統計</div>
+  <div class="tab" data-page="Grid">🔢 グリッド</div>
+  <div class="tab" data-page="Analysis">📈 分析</div>
+</div>
+
+<!-- HISTORY -->
 <div class="hist" id="histStrip"><span class="emp">↓ 出目を入力</span></div>
 
-<div class="mid" id="midArea"></div>
+<!-- MAIN CONTENT -->
+<div class="mid">
+  <div class="page active" id="pageStats"></div>
+  <div class="page" id="pageGrid"></div>
+  <div class="page" id="pageAnalysis"></div>
+</div>
 
+<!-- QUICK INPUT -->
+<div id="quickWrap" style="display:none">
+  <div class="quick-grid" id="quickGrid"></div>
+</div>
+<div class="quick-toggle-bar">
+  <button class="quick-toggle" id="btnQuick">⚡ クイック入力を表示</button>
+</div>
+
+<!-- INPUT BAR -->
 <div class="input-bar">
   <input type="text" id="numInput" inputmode="numeric" pattern="[0-9]*" placeholder="0, 00, 1〜36" autocomplete="off">
   <button class="submit-btn" id="btnSubmit">入力</button>
 </div>
 
+<!-- EXPORT/IMPORT MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">データ保存 / 読込</div>
+    <textarea id="modalTextarea" placeholder="データをここに貼り付け..."></textarea>
+    <div class="modal-btns">
+      <button class="modal-btn primary" id="modalAction">コピー</button>
+      <button class="modal-btn" id="btnSwitchMode">インポートに切替</button>
+      <button class="modal-btn close-btn" id="modalClose">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-// ===== DATA (American Roulette) =====
+// ===== データ定義 =====
 const REDS = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
 const COL1 = [1,4,7,10,13,16,19,22,25,28,31,34];
 const COL2 = [2,5,8,11,14,17,20,23,26,29,32,35];
 const COL3 = [3,6,9,12,15,18,21,24,27,30,33,36];
 
-const disp = n => n===-1?'00':String(n);
-const getClr = n => (n===0||n===-1)?'g':REDS.includes(n)?'r':'b';
-const getClrLabel = n => (n===0||n===-1)?null:REDS.includes(n)?'赤':'黒';
-const getParity = n => n<=0?null:n%2===0?'偶':'奇';
-const getHalf = n => n<=0?null:n<=18?'Lo':'Hi';
-const getDozen = n => n<=0?null:n<=12?'D1':n<=24?'D2':'D3';
-const getCol = n => n<=0?null:COL1.includes(n)?'C1':COL2.includes(n)?'C2':'C3';
+const disp = n => n === -1 ? '00' : String(n);
+const getClr = n => (n === 0 || n === -1) ? 'g' : REDS.includes(n) ? 'r' : 'b';
+const getClrLabel = n => (n === 0 || n === -1) ? null : REDS.includes(n) ? '赤' : '黒';
 
 let history = [];
-try{const d=localStorage.getItem('rt5');if(d)history=JSON.parse(d)}catch(e){}
-function save(){try{localStorage.setItem('rt5',JSON.stringify(history))}catch(e){}}
+let sessionStart = null;
 
-// ===== INPUT =====
+// ローカルストレージから復元
+try { const d = localStorage.getItem('rt5'); if (d) history = JSON.parse(d); } catch(e) {}
+try { const t = localStorage.getItem('rt5_start'); if (t && history.length) sessionStart = parseInt(t); } catch(e) {}
+
+function save() {
+  try { localStorage.setItem('rt5', JSON.stringify(history)); } catch(e) {}
+  if (sessionStart) try { localStorage.setItem('rt5_start', String(sessionStart)); } catch(e) {}
+}
+
+// ===== タイマー =====
+setInterval(() => {
+  if (!sessionStart) { document.getElementById('timerDisp').textContent = '00:00'; return; }
+  const sec = Math.floor((Date.now() - sessionStart) / 1000);
+  const m = String(Math.floor(sec / 60)).padStart(2, '0');
+  const s = String(sec % 60).padStart(2, '0');
+  document.getElementById('timerDisp').textContent = `${m}:${s}`;
+}, 1000);
+
+// ===== トースト =====
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+// ===== 入力 =====
 const $input = document.getElementById('numInput');
-const $submit = document.getElementById('btnSubmit');
+document.getElementById('btnSubmit').onclick = submitInput;
+$input.addEventListener('keydown', e => { if (e.key === 'Enter') submitInput(); });
 
-function submitInput(){
+function submitInput() {
   const raw = $input.value.trim();
-  if(raw === '') return;
-  if(raw === '00'){ addNum(-1); $input.value=''; $input.focus(); return; }
+  if (raw === '') return;
+  if (raw === '00') { addNum(-1); $input.value = ''; $input.focus(); return; }
   const n = parseInt(raw, 10);
-  if(!isNaN(n) && n >= 0 && n <= 36){ addNum(n); $input.value=''; }
+  if (!isNaN(n) && n >= 0 && n <= 36) { addNum(n); $input.value = ''; }
   $input.focus();
 }
 
-$submit.onclick = submitInput;
-$input.addEventListener('keydown', e => { if(e.key === 'Enter') submitInput(); });
-
-// ===== CORE =====
-function addNum(n){history.push(n);save();render();}
-document.getElementById('btnUndo').onclick=()=>{if(history.length){history.pop();save();render();}};
-document.getElementById('btnReset').onclick=()=>{if(confirm('全データをリセットしますか？')){history=[];save();render();}};
-
-// ===== HELPERS =====
-function pct(count, total){return total>0?Math.round(count/total*100):0;}
-
-// ===== RENDER =====
-function render(){
-  document.getElementById('spinCount').textContent=history.length;
-  document.getElementById('btnUndo').disabled=!history.length;
-  document.getElementById('btnReset').disabled=!history.length;
-  renderHist();
-  renderMid();
+function addNum(n) {
+  if (!sessionStart) { sessionStart = Date.now(); save(); }
+  history.push(n);
+  save();
+  render();
 }
 
-function renderHist(){
-  const el=document.getElementById('histStrip');
-  if(!history.length){el.innerHTML='<span class="emp">↓ 出目を入力</span>';return;}
-  el.innerHTML=history.slice(-40).map(n=>`<div class="mc ${getClr(n)}">${disp(n)}</div>`).join('');
-  requestAnimationFrame(()=>{el.scrollLeft=el.scrollWidth;});
+// ===== 戻す / リセット =====
+document.getElementById('btnUndo').onclick = () => {
+  if (history.length) { history.pop(); save(); render(); }
+};
+document.getElementById('btnReset').onclick = () => {
+  if (confirm('全データをリセットしますか？')) {
+    history = []; sessionStart = null;
+    localStorage.removeItem('rt5'); localStorage.removeItem('rt5_start');
+    render();
+  }
+};
+
+// ===== クイック入力ボタン構築 =====
+(function buildQuick() {
+  const grid = document.getElementById('quickGrid');
+  const defs = [
+    { n: 0, l: '0', c: 'qg' }, { n: -1, l: '00', c: 'qg' },
+    ...Array.from({ length: 36 }, (_, i) => ({
+      n: i + 1, l: String(i + 1), c: REDS.includes(i + 1) ? 'qr' : 'qb'
+    }))
+  ];
+  defs.forEach(({ n, l, c }) => {
+    const b = document.createElement('button');
+    b.className = `quick-btn ${c}`;
+    b.textContent = l;
+    b.onclick = () => { addNum(n); showToast(`${disp(n)} を入力`); };
+    grid.appendChild(b);
+  });
+})();
+
+document.getElementById('btnQuick').onclick = function() {
+  const w = document.getElementById('quickWrap');
+  const open = w.style.display !== 'none';
+  w.style.display = open ? 'none' : 'block';
+  this.textContent = open ? '⚡ クイック入力を表示' : '✕ クイック入力を閉じる';
+  this.classList.toggle('open', !open);
+};
+
+// ===== タブ切替 =====
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = function() {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    const id = 'page' + this.dataset.page;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  };
+});
+
+// ===== エクスポート/インポート =====
+let modalMode = 'export';
+document.getElementById('btnExport').onclick = () => openModal('export');
+document.getElementById('modalClose').onclick = () => document.getElementById('modalOverlay').classList.add('hidden');
+document.getElementById('modalOverlay').onclick = function(e) { if (e.target === this) this.classList.add('hidden'); };
+
+document.getElementById('btnSwitchMode').onclick = function() {
+  if (modalMode === 'export') {
+    modalMode = 'import';
+    document.getElementById('modalTitle').textContent = 'データインポート';
+    document.getElementById('modalTextarea').value = '';
+    document.getElementById('modalTextarea').readOnly = false;
+    document.getElementById('modalTextarea').placeholder = 'カンマ区切りで貼り付け (例: 7,0,00,14,32)';
+    document.getElementById('modalAction').textContent = 'インポート';
+    this.textContent = 'エクスポートに切替';
+  } else {
+    openModal('export');
+    this.textContent = 'インポートに切替';
+  }
+};
+
+document.getElementById('modalAction').onclick = function() {
+  if (modalMode === 'export') {
+    const txt = document.getElementById('modalTextarea').value;
+    navigator.clipboard.writeText(txt)
+      .then(() => showToast('コピーしました'))
+      .catch(() => showToast('コピー失敗'));
+  } else {
+    const raw = document.getElementById('modalTextarea').value.trim();
+    if (!raw) { showToast('データがありません'); return; }
+    const parts = raw.split(/[\s,]+/).filter(Boolean);
+    const imported = [];
+    for (const p of parts) {
+      if (p === '00') { imported.push(-1); }
+      else { const n = parseInt(p, 10); if (!isNaN(n) && n >= 0 && n <= 36) imported.push(n); }
+    }
+    if (!imported.length) { showToast('有効なデータがありません'); return; }
+    history = [...imported];
+    if (!sessionStart) sessionStart = Date.now();
+    save(); render();
+    document.getElementById('modalOverlay').classList.add('hidden');
+    showToast(`${imported.length}件インポートしました`);
+  }
+};
+
+function openModal(mode) {
+  modalMode = mode;
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  document.getElementById('modalTitle').textContent = 'データ書き出し';
+  const txt = history.map(n => n === -1 ? '00' : String(n)).join(',');
+  document.getElementById('modalTextarea').value = txt || '(データなし)';
+  document.getElementById('modalTextarea').readOnly = true;
+  document.getElementById('modalAction').textContent = 'コピー';
+  document.getElementById('btnSwitchMode').textContent = 'インポートに切替';
 }
 
-function renderMid(){
-  const el=document.getElementById('midArea');
-  const total=history.length;
-  const nz=history.filter(n=>n>0);
-  const nzt=nz.length||1;
+// ===== ヘルパー =====
+function pct(count, total) { return total > 0 ? Math.round(count / total * 100) : 0; }
+function dev(count, total, expected) {
+  if (!total) return '';
+  const diff = count / total * 100 - expected;
+  const sign = diff >= 0 ? '+' : '';
+  return `${sign}${diff.toFixed(1)}%`;
+}
+function devColor(count, total, expected) {
+  if (!total) return '#555';
+  const diff = count / total * 100 - expected;
+  if (Math.abs(diff) < 2.5) return '#555';
+  return diff > 0 ? '#f59e0b' : '#60a5fa';
+}
 
-  if(!total){
-    el.innerHTML='<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#444;font-size:15px">↓ 出目を入力してください</div>';
-    return;
+// ===== ストリーク計算 =====
+function calcStreaks() {
+  let rStr = 0, bStr = 0, oStr = 0, eStr = 0, lStr = 0, hStr = 0;
+  let maxR = 0, maxB = 0, maxO = 0, maxE = 0, maxL = 0, maxH = 0;
+
+  for (const n of history) {
+    const lbl = getClrLabel(n);
+    if (lbl === '赤') { rStr++; bStr = 0; } else if (lbl === '黒') { bStr++; rStr = 0; } else { rStr = 0; bStr = 0; }
+    maxR = Math.max(maxR, rStr); maxB = Math.max(maxB, bStr);
+    const isOdd = n > 0 && n % 2 !== 0, isEven = n > 0 && n % 2 === 0;
+    if (isOdd) { oStr++; eStr = 0; } else if (isEven) { eStr++; oStr = 0; } else { oStr = 0; eStr = 0; }
+    maxO = Math.max(maxO, oStr); maxE = Math.max(maxE, eStr);
+    const isLow = n > 0 && n <= 18, isHigh = n > 0 && n > 18;
+    if (isLow) { lStr++; hStr = 0; } else if (isHigh) { hStr++; lStr = 0; } else { lStr = 0; hStr = 0; }
+    maxL = Math.max(maxL, lStr); maxH = Math.max(maxH, hStr);
   }
 
-  const reds=history.filter(n=>REDS.includes(n)).length;
-  const blacks=history.filter(n=>n>0&&!REDS.includes(n)).length;
-  const zero0=history.filter(n=>n===0).length;
-  const zero00=history.filter(n=>n===-1).length;
-  const odds=nz.filter(n=>n%2!==0).length;
-  const evens=nz.filter(n=>n%2===0).length;
-  const lows=nz.filter(n=>n<=18).length;
-  const highs=nz.filter(n=>n>18).length;
-  const d1=nz.filter(n=>n<=12).length;
-  const d2=nz.filter(n=>n>12&&n<=24).length;
-  const d3=nz.filter(n=>n>24).length;
-  const c1=nz.filter(n=>COL1.includes(n)).length;
-  const c2=nz.filter(n=>COL2.includes(n)).length;
-  const c3=nz.filter(n=>COL3.includes(n)).length;
+  // 現在のストリーク
+  let curStr = 0, curType = null;
+  if (history.length > 0) {
+    const last = history[history.length - 1];
+    const lbl = getClrLabel(last);
+    if (lbl) { curStr = lbl === '赤' ? rStr : bStr; curType = lbl; }
+    else if (last > 0) {
+      const isOdd = last % 2 !== 0;
+      curStr = isOdd ? oStr : eStr; curType = isOdd ? '奇' : '偶';
+    }
+  }
+  return { curStr, curType, maxR, maxB, maxO, maxE, maxL, maxH };
+}
 
-  let h='';
+// ===== レコメンド =====
+function getRecs() {
+  if (history.length < 5) return [];
+  const last20 = history.slice(-20), nz = last20.filter(n => n > 0), sugs = [];
+  const reds = last20.filter(n => REDS.includes(n)).length;
+  const blacks = last20.filter(n => n > 0 && !REDS.includes(n)).length;
+  if (reds > blacks + 4) sugs.push('⚫黒');
+  else if (blacks > reds + 4) sugs.push('🔴赤');
+  const odds = nz.filter(n => n % 2 !== 0).length, evens = nz.filter(n => n % 2 === 0).length;
+  if (odds > evens + 3) sugs.push('偶数');
+  else if (evens > odds + 3) sugs.push('奇数');
+  const lows = nz.filter(n => n <= 18).length, highs = nz.filter(n => n > 18).length;
+  if (lows > highs + 3) sugs.push('ハイ19-36');
+  else if (highs > lows + 3) sugs.push('ロー1-18');
+  const d1 = nz.filter(n => n <= 12).length, d2 = nz.filter(n => n > 12 && n <= 24).length, d3 = nz.filter(n => n > 24).length;
+  const avgD = nz.length / 3;
+  if (d1 < avgD * 0.4 && nz.length >= 8) sugs.push('1stDZN');
+  if (d2 < avgD * 0.4 && nz.length >= 8) sugs.push('2ndDZN');
+  if (d3 < avgD * 0.4 && nz.length >= 8) sugs.push('3rdDZN');
+  const avgC = nz.length / 3;
+  const c1n = nz.filter(n => COL1.includes(n)).length, c2n = nz.filter(n => COL2.includes(n)).length, c3n = nz.filter(n => COL3.includes(n)).length;
+  if (c1n < avgC * 0.4 && nz.length >= 8) sugs.push('1列目');
+  if (c2n < avgC * 0.4 && nz.length >= 8) sugs.push('2列目');
+  if (c3n < avgC * 0.4 && nz.length >= 8) sugs.push('3列目');
+  let streak = 1;
+  const lc = getClrLabel(history[history.length - 1]);
+  if (lc) {
+    for (let i = history.length - 2; i >= 0; i--) { if (getClrLabel(history[i]) === lc) streak++; else break; }
+    if (streak >= 4) { const opp = lc === '赤' ? '⚫黒' : '🔴赤'; sugs.push(`${opp}そろそろ🔥`); }
+  }
+  return sugs;
+}
 
-  // Recommend
-  const sugs=getRecs();
-  if(history.length>=5 && sugs.length){
-    h+=`<div class="rec">
+// ===== メインレンダー =====
+function render() {
+  const total = history.length;
+  document.getElementById('spinCount').textContent = total;
+  document.getElementById('btnUndo').disabled = !total;
+  document.getElementById('btnReset').disabled = !total;
+  renderHist();
+  renderStats();
+  renderGrid();
+  renderAnalysis();
+}
+
+// ===== ヒストリーバー =====
+function renderHist() {
+  const el = document.getElementById('histStrip');
+  if (!history.length) { el.innerHTML = '<span class="emp">↓ 出目を入力</span>'; return; }
+  el.innerHTML = history.slice(-50).map((n, i, arr) => {
+    const cls = `mc ${getClr(n)}${i === arr.length - 1 ? ' new-entry' : ''}`;
+    return `<div class="${cls}">${disp(n)}</div>`;
+  }).join('');
+  requestAnimationFrame(() => { el.scrollLeft = el.scrollWidth; });
+}
+
+// ===== 統計ページ =====
+function renderStats() {
+  const el = document.getElementById('pageStats');
+  const total = history.length;
+  if (!total) {
+    el.innerHTML = '<div class="empty-state">↓ 出目を入力してください<br><span style="font-size:11px;color:#333">0 / 00 / 1〜36</span></div>';
+    return;
+  }
+  const nz = history.filter(n => n > 0);
+  const nzt = nz.length || 1;
+  const reds = history.filter(n => REDS.includes(n)).length;
+  const blacks = history.filter(n => n > 0 && !REDS.includes(n)).length;
+  const zero0 = history.filter(n => n === 0).length;
+  const zero00 = history.filter(n => n === -1).length;
+  const odds = nz.filter(n => n % 2 !== 0).length;
+  const evens = nz.filter(n => n % 2 === 0).length;
+  const lows = nz.filter(n => n <= 18).length;
+  const highs = nz.filter(n => n > 18).length;
+  const d1 = nz.filter(n => n <= 12).length, d2 = nz.filter(n => n > 12 && n <= 24).length, d3 = nz.filter(n => n > 24).length;
+  const c1 = nz.filter(n => COL1.includes(n)).length, c2 = nz.filter(n => COL2.includes(n)).length, c3 = nz.filter(n => COL3.includes(n)).length;
+  const { curStr, curType, maxR, maxB, maxO } = calcStreaks();
+
+  let h = '';
+
+  // レコメンド
+  const sugs = getRecs();
+  if (total >= 5 && sugs.length) {
+    h += `<div class="rec">
       <div class="rec-title">🎯 レコメンド</div>
-      <div class="rec-tags">${sugs.slice(0,4).map(s=>`<span class="rec-tag">${s.text}</span>`).join('')}</div>
+      <div class="rec-tags">${sugs.slice(0, 5).map(s => `<span class="rec-tag">${s}</span>`).join('')}</div>
       <div class="rec-hint">※各スピンは独立事象です。娯楽目的の予想です。</div>
     </div>`;
   }
 
-  // 赤 / 黒 / 0 / 00（4分割）
-  h+=`<div class="cat">
+  // ストリーク
+  const sc = curType === '赤' ? '#ef4444' : curType === '黒' ? '#9ca3af' : curType === '奇' ? '#8b5cf6' : curType === '偶' ? '#0ea5e9' : '#555';
+  h += `<div class="cat">
+    <div class="cat-label">🔥 ストリーク統計</div>
+    <div class="streak-row">
+      <div class="streak-item" style="background:rgba(255,255,255,0.03)">
+        <div class="streak-label">現在</div>
+        <div class="streak-val" style="color:${sc}">${curStr}</div>
+        <div class="streak-sub" style="color:${sc}">${curType || '—'}連続</div>
+      </div>
+      <div class="streak-item" style="background:rgba(220,38,38,0.07)">
+        <div class="streak-label">最長赤</div>
+        <div class="streak-val" style="color:#ef4444">${maxR}</div>
+        <div class="streak-sub" style="color:#666">連続</div>
+      </div>
+      <div class="streak-item" style="background:rgba(80,80,130,0.1)">
+        <div class="streak-label">最長黒</div>
+        <div class="streak-val" style="color:#9ca3af">${maxB}</div>
+        <div class="streak-sub" style="color:#666">連続</div>
+      </div>
+      <div class="streak-item" style="background:rgba(139,92,246,0.07)">
+        <div class="streak-label">最長奇</div>
+        <div class="streak-val" style="color:#8b5cf6">${maxO}</div>
+        <div class="streak-sub" style="color:#666">連続</div>
+      </div>
+    </div>
+  </div>`;
+
+  // 赤/黒/0/00
+  h += `<div class="cat">
     <div class="cat-label">赤 / 黒 / 0 / 00</div>
     <div class="split4">
-      <div class="s4-item" style="background:rgba(220,38,38,0.12)">
+      <div class="s4-item" style="background:rgba(220,38,38,0.1)">
         <div class="s4-label" style="color:#ef4444">🔴 赤</div>
         <div class="s4-count" style="color:#ef4444">${reds}</div>
         <div class="s4-pct" style="color:#ef4444">${pct(reds,total)}%</div>
@@ -215,135 +594,334 @@ function renderMid(){
         <div class="s4-count" style="color:#ccc">${blacks}</div>
         <div class="s4-pct" style="color:#ccc">${pct(blacks,total)}%</div>
       </div>
-      <div class="s4-item s4-zero" style="background:rgba(22,163,74,0.15)">
+      <div class="s4-item s4-zero" style="background:rgba(22,163,74,0.12)">
         <div class="s4-label" style="color:#16a34a">0</div>
         <div class="s4-count" style="color:#16a34a">${zero0}</div>
         <div class="s4-pct" style="color:#16a34a">${pct(zero0,total)}%</div>
       </div>
-      <div class="s4-item s4-zero" style="background:rgba(22,163,74,0.15)">
+      <div class="s4-item s4-zero" style="background:rgba(22,163,74,0.12)">
         <div class="s4-label" style="color:#16a34a">00</div>
         <div class="s4-count" style="color:#16a34a">${zero00}</div>
         <div class="s4-pct" style="color:#16a34a">${pct(zero00,total)}%</div>
       </div>
     </div>
-    <div class="s2-bar">
-      <div style="width:${pct(reds,total)}%;background:#dc2626"></div>
-      <div style="width:${pct(blacks,total)}%;background:#252540"></div>
-      <div style="width:${pct(zero0,total)}%;background:#16a34a"></div>
-      <div style="flex:1;background:#0d8a3a"></div>
+    <div class="s2-bar" style="margin-top:6px">
+      <div class="bar-seg" style="width:${pct(reds,total)}%;background:#dc2626"></div>
+      <div class="bar-seg" style="width:${pct(blacks,total)}%;background:#252540"></div>
+      <div class="bar-seg" style="width:${pct(zero0,total)}%;background:#16a34a"></div>
+      <div class="bar-seg" style="flex:1;background:#0d7a35"></div>
     </div>
   </div>`;
 
   // 奇偶
-  h+=`<div class="cat">
+  h += `<div class="cat">
     <div class="cat-label">奇数 / 偶数</div>
     <div class="split2">
-      <div class="s2-item" style="background:rgba(139,92,246,0.12)">
+      <div class="s2-item" style="background:rgba(139,92,246,0.1)">
         <div class="s2-top"><span class="s2-label" style="color:#8b5cf6">奇数</span><span class="s2-pct" style="color:#8b5cf6">${pct(odds,nzt)}%</span></div>
         <div class="s2-count" style="color:#8b5cf6">${odds}</div>
+        <div class="s2-dev" style="color:${devColor(odds,nzt,50)}">${dev(odds,nzt,50)}</div>
       </div>
-      <div class="s2-item" style="background:rgba(14,165,233,0.12)">
+      <div class="s2-item" style="background:rgba(14,165,233,0.1)">
         <div class="s2-top"><span class="s2-label" style="color:#0ea5e9">偶数</span><span class="s2-pct" style="color:#0ea5e9">${pct(evens,nzt)}%</span></div>
         <div class="s2-count" style="color:#0ea5e9">${evens}</div>
+        <div class="s2-dev" style="color:${devColor(evens,nzt,50)}">${dev(evens,nzt,50)}</div>
       </div>
+    </div>
+    <div class="s2-bar" style="margin-top:5px">
+      <div class="bar-seg" style="width:${pct(odds,nzt)}%;background:#8b5cf6"></div>
+      <div class="bar-seg" style="flex:1;background:#0ea5e9"></div>
     </div>
   </div>`;
 
   // ハイロー
-  h+=`<div class="cat">
+  h += `<div class="cat">
     <div class="cat-label">ロー(1-18) / ハイ(19-36)</div>
     <div class="split2">
-      <div class="s2-item" style="background:rgba(245,158,11,0.12)">
+      <div class="s2-item" style="background:rgba(245,158,11,0.1)">
         <div class="s2-top"><span class="s2-label" style="color:#f59e0b">Lo 1-18</span><span class="s2-pct" style="color:#f59e0b">${pct(lows,nzt)}%</span></div>
         <div class="s2-count" style="color:#f59e0b">${lows}</div>
+        <div class="s2-dev" style="color:${devColor(lows,nzt,50)}">${dev(lows,nzt,50)}</div>
       </div>
-      <div class="s2-item" style="background:rgba(16,185,129,0.12)">
+      <div class="s2-item" style="background:rgba(16,185,129,0.1)">
         <div class="s2-top"><span class="s2-label" style="color:#10b981">Hi 19-36</span><span class="s2-pct" style="color:#10b981">${pct(highs,nzt)}%</span></div>
         <div class="s2-count" style="color:#10b981">${highs}</div>
+        <div class="s2-dev" style="color:${devColor(highs,nzt,50)}">${dev(highs,nzt,50)}</div>
       </div>
+    </div>
+    <div class="s2-bar" style="margin-top:5px">
+      <div class="bar-seg" style="width:${pct(lows,nzt)}%;background:#f59e0b"></div>
+      <div class="bar-seg" style="flex:1;background:#10b981"></div>
     </div>
   </div>`;
 
   // ダズン
-  h+=`<div class="cat">
+  const dExp = 33.3;
+  h += `<div class="cat">
     <div class="cat-label">ダズン (3ブロック)</div>
     <div class="split3">
-      <div class="s3-item" style="background:rgba(239,68,68,0.1)">
+      <div class="s3-item" style="background:rgba(239,68,68,0.08)">
         <div class="s3-label" style="color:#ef4444">1st 1-12</div>
         <div class="s3-count" style="color:#ef4444">${d1}</div>
         <div class="s3-pct" style="color:#ef4444">${pct(d1,nzt)}%</div>
+        <div class="s3-dev" style="color:${devColor(d1,nzt,dExp)}">${dev(d1,nzt,dExp)}</div>
       </div>
-      <div class="s3-item" style="background:rgba(59,130,246,0.1)">
+      <div class="s3-item" style="background:rgba(59,130,246,0.08)">
         <div class="s3-label" style="color:#3b82f6">2nd 13-24</div>
         <div class="s3-count" style="color:#3b82f6">${d2}</div>
         <div class="s3-pct" style="color:#3b82f6">${pct(d2,nzt)}%</div>
+        <div class="s3-dev" style="color:${devColor(d2,nzt,dExp)}">${dev(d2,nzt,dExp)}</div>
       </div>
-      <div class="s3-item" style="background:rgba(34,197,94,0.1)">
+      <div class="s3-item" style="background:rgba(34,197,94,0.08)">
         <div class="s3-label" style="color:#22c55e">3rd 25-36</div>
         <div class="s3-count" style="color:#22c55e">${d3}</div>
         <div class="s3-pct" style="color:#22c55e">${pct(d3,nzt)}%</div>
+        <div class="s3-dev" style="color:${devColor(d3,nzt,dExp)}">${dev(d3,nzt,dExp)}</div>
       </div>
     </div>
   </div>`;
 
   // カラム
-  h+=`<div class="cat">
+  h += `<div class="cat">
     <div class="cat-label">カラム (縦3列)</div>
     <div class="split3">
-      <div class="s3-item" style="background:rgba(232,112,64,0.1)">
+      <div class="s3-item" style="background:rgba(232,112,64,0.08)">
         <div class="s3-label" style="color:#e87040">1列目</div>
         <div class="s3-count" style="color:#e87040">${c1}</div>
         <div class="s3-pct" style="color:#e87040">${pct(c1,nzt)}%</div>
+        <div class="s3-dev" style="color:${devColor(c1,nzt,dExp)}">${dev(c1,nzt,dExp)}</div>
         <div class="s3-nums">${COL1.join(',')}</div>
       </div>
-      <div class="s3-item" style="background:rgba(168,85,247,0.1)">
+      <div class="s3-item" style="background:rgba(168,85,247,0.08)">
         <div class="s3-label" style="color:#a855f7">2列目</div>
         <div class="s3-count" style="color:#a855f7">${c2}</div>
         <div class="s3-pct" style="color:#a855f7">${pct(c2,nzt)}%</div>
+        <div class="s3-dev" style="color:${devColor(c2,nzt,dExp)}">${dev(c2,nzt,dExp)}</div>
         <div class="s3-nums">${COL2.join(',')}</div>
       </div>
-      <div class="s3-item" style="background:rgba(20,184,166,0.1)">
+      <div class="s3-item" style="background:rgba(20,184,166,0.08)">
         <div class="s3-label" style="color:#14b8a6">3列目</div>
         <div class="s3-count" style="color:#14b8a6">${c3}</div>
         <div class="s3-pct" style="color:#14b8a6">${pct(c3,nzt)}%</div>
+        <div class="s3-dev" style="color:${devColor(c3,nzt,dExp)}">${dev(c3,nzt,dExp)}</div>
         <div class="s3-nums">${COL3.join(',')}</div>
       </div>
     </div>
   </div>`;
 
-  el.innerHTML=h;
+  el.innerHTML = h;
 }
 
-// ===== RECOMMENDATIONS =====
-function getRecs(){
-  if(history.length<5) return [];
-  const last20=history.slice(-20),nz=last20.filter(n=>n>0),total=last20.length,sugs=[];
-  const reds=last20.filter(n=>REDS.includes(n)).length,blacks=last20.filter(n=>n>0&&!REDS.includes(n)).length;
-  if(reds>blacks+4) sugs.push({text:'⚫黒'});
-  else if(blacks>reds+4) sugs.push({text:'🔴赤'});
-  const odds=nz.filter(n=>n%2!==0).length,evens=nz.filter(n=>n%2===0).length;
-  if(odds>evens+3) sugs.push({text:'偶数'});
-  else if(evens>odds+3) sugs.push({text:'奇数'});
-  const lows=nz.filter(n=>n<=18).length,highs=nz.filter(n=>n>18).length;
-  if(lows>highs+3) sugs.push({text:'ハイ19-36'});
-  else if(highs>lows+3) sugs.push({text:'ロー1-18'});
-  const d1=nz.filter(n=>n<=12).length,d2=nz.filter(n=>n>12&&n<=24).length,d3=nz.filter(n=>n>24).length;
-  const avgD=nz.length/3;
-  if(d1<avgD*.4&&nz.length>=8) sugs.push({text:'1stDZN'});
-  if(d2<avgD*.4&&nz.length>=8) sugs.push({text:'2ndDZN'});
-  if(d3<avgD*.4&&nz.length>=8) sugs.push({text:'3rdDZN'});
-  const c1n=nz.filter(n=>COL1.includes(n)).length,c2n=nz.filter(n=>COL2.includes(n)).length,c3n=nz.filter(n=>COL3.includes(n)).length;
-  const avgC=nz.length/3;
-  if(c1n<avgC*.4&&nz.length>=8) sugs.push({text:'1列目'});
-  if(c2n<avgC*.4&&nz.length>=8) sugs.push({text:'2列目'});
-  if(c3n<avgC*.4&&nz.length>=8) sugs.push({text:'3列目'});
-  let streak=1;const lc=getClrLabel(history[history.length-1]);
-  if(lc){for(let i=history.length-2;i>=0;i--){if(getClrLabel(history[i])===lc)streak++;else break;}
-  if(streak>=4){const opp=lc==='赤'?'⚫黒':'🔴赤';sugs.push({text:`${opp}そろそろ🔥`});}}
-  return sugs;
+// ===== グリッドページ =====
+function renderGrid() {
+  const el = document.getElementById('pageGrid');
+  const total = history.length;
+  if (!total) {
+    el.innerHTML = '<div class="empty-state">出目を入力するとグリッドが表示されます</div>';
+    return;
+  }
+
+  // 各数字の出現回数
+  const counts = {};
+  for (const n of history) counts[n] = (counts[n] || 0) + 1;
+  const maxCnt = Math.max(...Object.values(counts), 1);
+
+  // ホット/コールド
+  const allNums = [0, -1, ...Array.from({ length: 36 }, (_, i) => i + 1)];
+  const sortedHot = [...allNums].sort((a, b) => (counts[b] || 0) - (counts[a] || 0));
+  const sortedCold = [...allNums].sort((a, b) => (counts[a] || 0) - (counts[b] || 0));
+
+  let h = '';
+
+  // ホット/コールドナンバー
+  h += `<div class="cat">
+    <div class="cat-label">🔥 ホット / 🧊 コールド <span class="cat-sub">${total}スピン集計</span></div>
+    <div class="hc-row">
+      <div class="hc-col" style="background:rgba(255,107,53,0.07);border:1px solid rgba(255,107,53,0.18);border-radius:6px">
+        <div class="hc-title" style="color:var(--hot)">🔥 HOT TOP5</div>
+        <div class="hc-nums">`;
+  sortedHot.slice(0, 5).filter(n => (counts[n] || 0) > 0).forEach(n => {
+    const cnt = counts[n] || 0;
+    const w = Math.round(cnt / maxCnt * 100);
+    const clr = getClr(n);
+    const bg = clr === 'r' ? '#dc2626' : clr === 'b' ? '#404060' : '#16a34a';
+    h += `<div class="hc-item">
+      <div class="hc-ball" style="background:${bg}">${disp(n)}</div>
+      <div class="hc-bar-wrap"><div class="hc-bar" style="width:${w}%;background:var(--hot)"></div></div>
+      <div class="hc-cnt">${cnt}</div>
+    </div>`;
+  });
+  h += `</div></div>
+      <div class="hc-col" style="background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.18);border-radius:6px">
+        <div class="hc-title" style="color:var(--cold)">🧊 COLD TOP5</div>
+        <div class="hc-nums">`;
+  sortedCold.slice(0, 5).forEach(n => {
+    const cnt = counts[n] || 0;
+    const clr = getClr(n);
+    const bg = clr === 'r' ? '#dc2626' : clr === 'b' ? '#404060' : '#16a34a';
+    h += `<div class="hc-item">
+      <div class="hc-ball" style="background:${bg}">${disp(n)}</div>
+      <div class="hc-bar-wrap"><div class="hc-bar" style="width:${cnt === 0 ? 0 : Math.round(cnt / maxCnt * 100)}%;background:var(--cold)"></div></div>
+      <div class="hc-cnt">${cnt}</div>
+    </div>`;
+  });
+  h += `</div></div></div></div>`;
+
+  // 全数字グリッド
+  h += `<div class="cat">
+    <div class="cat-label">🔢 全数字グリッド <span class="cat-sub">塗り=頻度</span></div>
+    <div class="num-grid">`;
+
+  [[0,'0','g-cell'], [-1,'00','g-cell']].forEach(([n, l, cls]) => {
+    const cnt = counts[n] || 0;
+    const fillH = maxCnt > 0 ? Math.round(cnt / maxCnt * 100) : 0;
+    h += `<div class="ng-cell ${cls}" onclick="window._addNum(${n})">
+      <div class="ng-fill" style="height:${fillH}%"></div>
+      <div class="ng-num">${l}</div>
+      <div class="ng-cnt">${cnt}</div>
+    </div>`;
+  });
+
+  for (let n = 1; n <= 36; n++) {
+    const cnt = counts[n] || 0;
+    const fillH = maxCnt > 0 ? Math.round(cnt / maxCnt * 100) : 0;
+    const cls = REDS.includes(n) ? 'r-cell' : 'b-cell';
+    h += `<div class="ng-cell ${cls}" onclick="window._addNum(${n})">
+      <div class="ng-fill" style="height:${fillH}%"></div>
+      <div class="ng-num">${n}</div>
+      <div class="ng-cnt">${cnt}</div>
+    </div>`;
+  }
+  h += `</div>
+    <div style="font-size:10px;color:#444;margin-top:4px;text-align:center">タップして入力</div>
+  </div>`;
+
+  el.innerHTML = h;
+}
+window._addNum = function(n) { addNum(n); showToast(`${disp(n)} を入力`); };
+
+// ===== 分析ページ =====
+function renderAnalysis() {
+  const el = document.getElementById('pageAnalysis');
+  const total = history.length;
+  if (!total) {
+    el.innerHTML = '<div class="empty-state">出目を入力すると分析が表示されます</div>';
+    return;
+  }
+  const nz = history.filter(n => n > 0);
+  const nzt = nz.length || 1;
+  const reds = history.filter(n => REDS.includes(n)).length;
+  const blacks = history.filter(n => n > 0 && !REDS.includes(n)).length;
+  const zero0 = history.filter(n => n === 0).length;
+  const zero00 = history.filter(n => n === -1).length;
+  const odds = nz.filter(n => n % 2 !== 0).length;
+  const evens = nz.filter(n => n % 2 === 0).length;
+  const lows = nz.filter(n => n <= 18).length;
+  const highs = nz.filter(n => n > 18).length;
+  const d1 = nz.filter(n => n <= 12).length, d2 = nz.filter(n => n > 12 && n <= 24).length, d3 = nz.filter(n => n > 24).length;
+  const c1 = nz.filter(n => COL1.includes(n)).length, c2 = nz.filter(n => COL2.includes(n)).length, c3 = nz.filter(n => COL3.includes(n)).length;
+
+  // セッション時間
+  let timeStr = '—', speedStr = '—';
+  if (sessionStart) {
+    const sec = Math.floor((Date.now() - sessionStart) / 1000);
+    const m = String(Math.floor(sec / 60)).padStart(2, '0');
+    const s = String(sec % 60).padStart(2, '0');
+    timeStr = `${m}:${s}`;
+    if (total >= 2 && sec > 0) {
+      const spm = (total / (sec / 60)).toFixed(1);
+      speedStr = `${spm}/分`;
+    }
+  }
+
+  const devRows = [
+    { label: '赤 (47.4%)', count: reds, total, expected: 47.37 },
+    { label: '黒 (47.4%)', count: blacks, total, expected: 47.37 },
+    { label: '0 (2.6%)', count: zero0, total, expected: 2.63 },
+    { label: '00 (2.6%)', count: zero00, total, expected: 2.63 },
+    { label: '奇数 (50%)', count: odds, total: nzt, expected: 50 },
+    { label: '偶数 (50%)', count: evens, total: nzt, expected: 50 },
+    { label: 'Lo (50%)', count: lows, total: nzt, expected: 50 },
+    { label: 'Hi (50%)', count: highs, total: nzt, expected: 50 },
+    { label: '1stDZN(33%)', count: d1, total: nzt, expected: 33.33 },
+    { label: '2ndDZN(33%)', count: d2, total: nzt, expected: 33.33 },
+    { label: '3rdDZN(33%)', count: d3, total: nzt, expected: 33.33 },
+    { label: '1列目 (33%)', count: c1, total: nzt, expected: 33.33 },
+    { label: '2列目 (33%)', count: c2, total: nzt, expected: 33.33 },
+    { label: '3列目 (33%)', count: c3, total: nzt, expected: 33.33 },
+  ];
+
+  let h = '';
+
+  // セッション情報
+  h += `<div class="cat">
+    <div class="cat-label">⏱ セッション情報</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+      <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:22px;font-weight:800;font-family:'DM Mono',monospace;color:var(--gold)">${total}</div>
+        <div style="font-size:10px;color:#555">総スピン</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:15px;font-weight:700;font-family:'DM Mono',monospace;color:#60a5fa" id="analysisTime">${timeStr}</div>
+        <div style="font-size:10px;color:#555">経過時間</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;text-align:center">
+        <div style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace;color:#f59e0b">${speedStr}</div>
+        <div style="font-size:10px;color:#555">ペース</div>
+      </div>
+    </div>
+  </div>`;
+
+  // 逸脱度テーブル
+  h += `<div class="cat">
+    <div class="cat-label">📏 期待値からの逸脱度 <span class="cat-sub">縦線=理論値</span></div>`;
+  devRows.forEach(({ label, count, total: t, expected }) => {
+    const actual = t > 0 ? count / t * 100 : 0;
+    const diff = actual - expected;
+    const sign = diff >= 0 ? '+' : '';
+    const barW = Math.min(actual, 100);
+    const expW = Math.min(expected, 100);
+    const color = Math.abs(diff) < 3 ? '#555' : diff > 0 ? '#f59e0b' : '#60a5fa';
+    h += `<div class="dev-row">
+      <div class="dev-label">${label}</div>
+      <div class="dev-bar-wrap">
+        <div class="dev-actual" style="width:${barW}%;background:${color}"></div>
+        <div class="dev-expected" style="left:${expW}%"></div>
+      </div>
+      <div class="dev-pct">${actual.toFixed(1)}%</div>
+      <div class="dev-diff" style="color:${color}">${sign}${diff.toFixed(1)}</div>
+    </div>`;
+  });
+  h += `</div>`;
+
+  // 直近トレンドバーチャート
+  if (total >= 5) {
+    const last20 = history.slice(-20);
+    const l20t = last20.length;
+    const l20r = last20.filter(n => REDS.includes(n)).length;
+    const l20b = last20.filter(n => n > 0 && !REDS.includes(n)).length;
+    const l20g = last20.filter(n => n <= 0).length;
+    h += `<div class="cat">
+      <div class="cat-label">📊 直近${l20t}スピンのトレンド</div>
+      <div style="display:flex;gap:2px;height:48px;align-items:flex-end;margin-bottom:6px">`;
+    last20.forEach(n => {
+      const clr = getClr(n);
+      const bg = clr === 'r' ? '#dc2626' : clr === 'b' ? '#404060' : '#16a34a';
+      h += `<div style="flex:1;background:${bg};border-radius:2px 2px 0 0;min-height:5px;height:48px;opacity:0.7"></div>`;
+    });
+    h += `</div>
+      <div style="display:flex;gap:10px;font-size:11px">
+        <span style="color:#ef4444">赤 ${l20r}回 (${pct(l20r,l20t)}%)</span>
+        <span style="color:#9ca3af">黒 ${l20b}回 (${pct(l20b,l20t)}%)</span>
+        <span style="color:#16a34a">0/00 ${l20g}回 (${pct(l20g,l20t)}%)</span>
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = h;
 }
 
-// ===== INIT =====
+// ===== 初期化 =====
 render();
 
 // ===== PWA =====

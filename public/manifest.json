@@ -1,7 +1,7 @@
 {
   "name": "Roulette Tracker",
   "short_name": "Roulette",
-  "description": "ルーレットの出目トレンドをリアルタイム追跡。偏り分析＆レコメンド付き。",
+  "description": "ルーレット出目トレッカー。ホット/コールド分析・ストリーク統計・逸脱度グラフ・クイック入力対応のPWA。",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
